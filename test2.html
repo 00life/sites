@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KICA Calculator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 24px 0 8px;
+      font-size: 1.1em;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px 1fr 80px 1fr;
+      gap: 12px 16px;
+      align-items: center;
+    }
+
+    .row label {
+      font-weight: normal;
+      color: #555;
+      text-align: right;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[type="number"]::placeholder {
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 35px;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e9f7ef;
+      border-radius: 10px;
+      font-size: 1.25em;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>KICA Calculator</h1>
+
+    <label>Knowledge and Understanding</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="kWeight" value="30" placeholder="%">
+      
+      <label>Score:</label>
+      <input type="number" id="kScore" placeholder="#">
+      
+      <label>Total:</label>
+      <input type="number" id="kTotal" placeholder="#">
+    </div>
+
+    <label>Inquiry/Thinking</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="tWeight" value="20" placeholder="%">
+      
+      <label>Score:</label>
+      <input type="number" id="tScore" placeholder="#">
+      
+      <label>Total:</label>
+      <input type="number" id="tTotal" placeholder="#">
+    </div>
+
+    <label>Communication</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="cWeight" value="10" placeholder="%">
+      
+      <label>Score:</label>
+      <input type="number" id="cScore" placeholder="#">
+      
+      <label>Total:</label>
+      <input type="number" id="cTotal" placeholder="#">
+    </div>
+
+    <label>Application</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="aWeight" value="10" placeholder="%">
+      
+      <label>Score:</label>
+      <input type="number" id="aScore" placeholder="#">
+      
+      <label>Total:</label>
+      <input type="number" id="aTotal" placeholder="#">
+    </div>
+
+    <button onclick="calculateWeighted()">Calculate Final Grade</button>
+
+    <div class="result" id="output">
+      Enter values above, then click Calculate.
+    </div>
+  </div>
+
+  <script>
+    function calculateWeighted() {
+      // Helper: weighted contribution of one category
+      function categoryResult(weightPercent, score, total) {
+        if (total <= 0 || isNaN(total)) return 0;
+        return (score / total) * weightPercent;
+      }
+
+      // Read inputs
+      const kWeight = Number(document.getElementById("kWeight").value) || 0;
+      const kScore  = Number(document.getElementById("kScore").value)  || 0;
+      const kTotal  = Number(document.getElementById("kTotal").value)  || 0;
+
+      const tWeight = Number(document.getElementById("tWeight").value) || 0;
+      const tScore  = Number(document.getElementById("tScore").value)  || 0;
+      const tTotal  = Number(document.getElementById("tTotal").value)  || 0;
+
+      const cWeight = Number(document.getElementById("cWeight").value) || 0;
+      const cScore  = Number(document.getElementById("cScore").value)  || 0;
+      const cTotal  = Number(document.getElementById("cTotal").value)  || 0;
+
+      const aWeight = Number(document.getElementById("aWeight").value) || 0;
+      const aScore  = Number(document.getElementById("aScore").value)  || 0;
+      const aTotal  = Number(document.getElementById("aTotal").value)  || 0;
+
+      // Normalize weights to percentages
+      const totalWeight = kWeight + tWeight + cWeight + aWeight;
+      if (totalWeight <= 0) {
+        document.getElementById("output").innerHTML = "Error: Weights must sum to more than 0";
+        return;
+      }
+
+      const perWeightK = (kWeight / totalWeight) * 100;
+      const perWeightT = (tWeight / totalWeight) * 100;
+      const perWeightC = (cWeight / totalWeight) * 100;
+      const perWeightA = (aWeight / totalWeight) * 100;
+
+      // Final grade
+      const finalGrade =
+        categoryResult(perWeightK, kScore, kTotal) +
+        categoryResult(perWeightT, tScore, tTotal) +
+        categoryResult(perWeightC, cScore, cTotal) +
+        categoryResult(perWeightA, aScore, aTotal);
+
+      document.getElementById("output").innerHTML =
+        `🎯 Final Weighted Grade: <b>${finalGrade.toFixed(2)}%</b>`;
+    }
+  </script>
+</body>
+</html>
