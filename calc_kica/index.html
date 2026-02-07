@@ -13,6 +13,7 @@
       margin: 0;
     }
 
+    /* Scale everything down to ~75% */
     .container {
       max-width: 720px;
       margin: auto;
@@ -20,12 +21,30 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
+
+      transform: scale(0.75);
+      transform-origin: top center;
+    }
+
+    /* Title + grade beside it */
+    .title-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 30px;
+      margin: 0;
       color: #333;
+      font-size: 2em;
+    }
+
+    #titleGrade {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #007bff;
     }
 
     label {
@@ -92,7 +111,12 @@
 
 <body>
   <div class="container">
-    <h1>KICA Calculator</h1>
+
+    <!-- Title with grade beside it -->
+    <div class="title-bar">
+      <h1>KICA Calculator</h1>
+      <div id="titleGrade">--%</div>
+    </div>
 
     <!-- Knowledge -->
     <label>Knowledge and Understanding</label>
@@ -149,35 +173,39 @@
     <button onclick="calculateWeighted()">Calculate Final Grade</button>
 
     <div class="result" id="output">
-      Enter values above, then click Calculate.
+      Enter values above, then click Calculate or press Enter.
     </div>
   </div>
 
   <script>
     /***********************
-     * ARROW KEY NAVIGATION
+     * INPUT NAVIGATION + ENTER CALCULATE
      ***********************/
     const inputs = Array.from(document.querySelectorAll("input[type='number']"));
 
     inputs.forEach((input, index) => {
       input.addEventListener("keydown", (event) => {
 
-        // Only handle arrow keys
+        /* ✅ ENTER KEY CALCULATES */
+        if (event.key === "Enter") {
+          event.preventDefault();
+          calculateWeighted();
+          return;
+        }
+
+        /* Arrow key movement */
         if (!event.key.includes("Arrow")) return;
 
         event.preventDefault();
 
         let nextIndex = index;
 
-        // Horizontal movement
         if (event.key === "ArrowRight") nextIndex = index + 1;
         if (event.key === "ArrowLeft") nextIndex = index - 1;
 
-        // Vertical movement (3 inputs per row)
         if (event.key === "ArrowDown") nextIndex = index + 3;
         if (event.key === "ArrowUp") nextIndex = index - 3;
 
-        // Wrap around
         if (nextIndex < 0) nextIndex = inputs.length - 1;
         if (nextIndex >= inputs.length) nextIndex = 0;
 
@@ -230,8 +258,12 @@
         categoryResult(perWeightC, cScore, cTotal) +
         categoryResult(perWeightA, aScore, aTotal);
 
+      /* Update output + title grade */
       document.getElementById("output").innerHTML =
         `🎯 Final Weighted Grade: <b>${finalGrade.toFixed(2)}%</b>`;
+
+      document.getElementById("titleGrade").innerHTML =
+        `${finalGrade.toFixed(2)}%`;
     }
   </script>
 </body>
