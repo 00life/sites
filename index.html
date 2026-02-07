@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KICA Calculator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      margin: 0;
+    }
+
+    /* Scale everything down to ~75% */
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+
+      transform: scale(0.75);
+      transform-origin: top center;
+    }
+
+    /* Title + grade beside it */
+    .title-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #333;
+      font-size: 2em;
+    }
+
+    #titleGrade {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 24px 0 8px;
+      font-size: 1.1em;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px 1fr 80px 1fr;
+      gap: 12px 16px;
+      align-items: center;
+    }
+
+    .row label {
+      font-weight: normal;
+      color: #555;
+      text-align: right;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 35px;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e9f7ef;
+      border-radius: 10px;
+      font-size: 1.25em;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Title with grade beside it -->
+    <div class="title-bar">
+      <h1>KICA Calculator</h1>
+      <div id="titleGrade">--%</div>
+    </div>
+
+    <!-- Knowledge -->
+    <label>Knowledge and Understanding</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="kWeight" value="30">
+
+      <label>Score:</label>
+      <input type="number" id="kScore">
+
+      <label>Total:</label>
+      <input type="number" id="kTotal">
+    </div>
+
+    <!-- Thinking -->
+    <label>Inquiry/Thinking</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="tWeight" value="20">
+
+      <label>Score:</label>
+      <input type="number" id="tScore">
+
+      <label>Total:</label>
+      <input type="number" id="tTotal">
+    </div>
+
+    <!-- Communication -->
+    <label>Communication</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="cWeight" value="10">
+
+      <label>Score:</label>
+      <input type="number" id="cScore">
+
+      <label>Total:</label>
+      <input type="number" id="cTotal">
+    </div>
+
+    <!-- Application -->
+    <label>Application</label>
+    <div class="row">
+      <label>Weight:</label>
+      <input type="number" id="aWeight" value="10">
+
+      <label>Score:</label>
+      <input type="number" id="aScore">
+
+      <label>Total:</label>
+      <input type="number" id="aTotal">
+    </div>
+
+    <button onclick="calculateWeighted()">Calculate Final Grade</button>
+
+    <div class="result" id="output">
+      Enter values above, then click Calculate or press Enter.
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * INPUT NAVIGATION + ENTER CALCULATE
+     ***********************/
+    const inputs = Array.from(document.querySelectorAll("input[type='number']"));
+
+    inputs.forEach((input, index) => {
+      input.addEventListener("keydown", (event) => {
+
+        /* ✅ ENTER KEY CALCULATES */
+        if (event.key === "Enter") {
+          event.preventDefault();
+          calculateWeighted();
+          return;
+        }
+
+        /* Arrow key movement */
+        if (!event.key.includes("Arrow")) return;
+
+        event.preventDefault();
+
+        let nextIndex = index;
+
+        if (event.key === "ArrowRight") nextIndex = index + 1;
+        if (event.key === "ArrowLeft") nextIndex = index - 1;
+
+        if (event.key === "ArrowDown") nextIndex = index + 3;
+        if (event.key === "ArrowUp") nextIndex = index - 3;
+
+        if (nextIndex < 0) nextIndex = inputs.length - 1;
+        if (nextIndex >= inputs.length) nextIndex = 0;
+
+        inputs[nextIndex].focus();
+      });
+    });
+
+    /***********************
+     * CALCULATOR FUNCTION
+     ***********************/
+    function calculateWeighted() {
+
+      function categoryResult(weightPercent, score, total) {
+        if (total <= 0 || isNaN(total)) return 0;
+        return (score / total) * weightPercent;
+      }
+
+      const kWeight = Number(document.getElementById("kWeight").value) || 0;
+      const kScore  = Number(document.getElementById("kScore").value) || 0;
+      const kTotal  = Number(document.getElementById("kTotal").value) || 0;
+
+      const tWeight = Number(document.getElementById("tWeight").value) || 0;
+      const tScore  = Number(document.getElementById("tScore").value) || 0;
+      const tTotal  = Number(document.getElementById("tTotal").value) || 0;
+
+      const cWeight = Number(document.getElementById("cWeight").value) || 0;
+      const cScore  = Number(document.getElementById("cScore").value) || 0;
+      const cTotal  = Number(document.getElementById("cTotal").value) || 0;
+
+      const aWeight = Number(document.getElementById("aWeight").value) || 0;
+      const aScore  = Number(document.getElementById("aScore").value) || 0;
+      const aTotal  = Number(document.getElementById("aTotal").value) || 0;
+
+      const totalWeight = kWeight + tWeight + cWeight + aWeight;
+
+      if (totalWeight <= 0) {
+        document.getElementById("output").innerHTML =
+          "⚠️ Error: Weights must sum to more than 0";
+        return;
+      }
+
+      const perWeightK = (kWeight / totalWeight) * 100;
+      const perWeightT = (tWeight / totalWeight) * 100;
+      const perWeightC = (cWeight / totalWeight) * 100;
+      const perWeightA = (aWeight / totalWeight) * 100;
+
+      const finalGrade =
+        categoryResult(perWeightK, kScore, kTotal) +
+        categoryResult(perWeightT, tScore, tTotal) +
+        categoryResult(perWeightC, cScore, cTotal) +
+        categoryResult(perWeightA, aScore, aTotal);
+
+      /* Update output + title grade */
+      document.getElementById("output").innerHTML =
+        `🎯 Final Weighted Grade: <b>${finalGrade.toFixed(2)}%</b>`;
+
+      document.getElementById("titleGrade").innerHTML =
+        `${finalGrade.toFixed(2)}%`;
+    }
+  </script>
+</body>
+</html>
