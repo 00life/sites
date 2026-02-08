@@ -242,12 +242,13 @@
     function calculateFinalGrade() {
       let termWeight = parseFloat(termWeightInput.value);
       let examWeight = parseFloat(examWeightInput.value);
+	  let totalWeight = termWeight + examWeight;
 
       let termMark = parseFloat(termMarkInput.value);
       let examMark = parseFloat(examMarkInput.value);
 
-      let termContribution = termMark * (termWeight / 100);
-      let examContribution = examMark * (examWeight / 100);
+      let termContribution = termMark * (termWeight / totalWeight);
+      let examContribution = examMark * (examWeight / totalWeight);
 
       let finalGrade = termContribution + examContribution;
 
@@ -269,8 +270,8 @@
         <hr>
 
         <p><b>Explanation:</b></p>
-        <p>Term Contribution = ${termMark} × (${termWeight}/100) = ${termContribution.toFixed(2)}</p>
-        <p>Exam Contribution = ${examMark} × (${examWeight}/100) = ${examContribution.toFixed(2)}</p>
+        <p>Term Contribution = ${termMark} × (${termWeight} ÷ ${totalWeight}) = ${termContribution.toFixed(2)}</p>
+        <p>Exam Contribution = ${examMark} × (${examWeight} ÷ ${totalWeight}) = ${examContribution.toFixed(2)}</p>
       `;
     }
 
