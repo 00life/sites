@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Final Grade Calculator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.12);
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .column {
+      flex: 1;
+    }
+
+    /* Input + Slider Layout */
+    .inputBlock {
+      margin-bottom: 15px;
+    }
+
+    .inputRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: bold;
+      width: 165px;
+    }
+
+    input[type="number"] {
+      width: 75px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* Remove spinners */
+    input.noSpinner::-webkit-outer-spin-button,
+    input.noSpinner::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input.noSpinner {
+      -moz-appearance: textfield;
+    }
+
+    /* Slider */
+    input[type="range"] {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    button {
+      width: 170px;
+      padding: 9px;
+      margin: 6px 0;
+      font-size: 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #calcBtn {
+      background: #007bff;
+      color: white;
+    }
+
+    #resetBtn {
+      background: #6c757d;
+      color: white;
+    }
+
+    #resultBox {
+      background: #eef3ff;
+      padding: 14px;
+      border-radius: 10px;
+      min-height: 140px;
+    }
+
+    .bigResult {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .gradeInline {
+      font-size: 16px;
+      margin-left: 6px;
+      color: #333;
+    }
+
+    .subInfo {
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Final Grade Calculator</h1>
+
+    <!-- INPUTS -->
+    <div class="row">
+
+      <!-- Column 1 -->
+      <div class="column">
+
+        <!-- Term Weight -->
+        <div class="inputBlock">
+          <div class="inputRow">
+            <label>Class Term Weight</label>
+            <input type="number" id="termWeight" value="70" class="noSpinner inputBox">
+          </div>
+          <input type="range" id="termWeightSlider" min="0" max="100" value="70">
+        </div>
+
+        <!-- Exam Weight -->
+        <div class="inputBlock">
+          <div class="inputRow">
+            <label>Class Exam Weight</label>
+            <input type="number" id="examWeight" value="30" class="noSpinner inputBox">
+          </div>
+          <input type="range" id="examWeightSlider" min="0" max="100" value="30">
+        </div>
+
+      </div>
+
+      <!-- Column 2 -->
+      <div class="column">
+
+        <!-- Term Mark -->
+        <div class="inputBlock">
+          <div class="inputRow">
+            <label>Class Term Mark (%)</label>
+            <input type="number" id="termMark" value="75" class="inputBox">
+          </div>
+          <input type="range" id="termMarkSlider" min="0" max="100" value="75">
+        </div>
+
+        <!-- Exam Mark -->
+        <div class="inputBlock">
+          <div class="inputRow">
+            <label>Class Exam Mark (%)</label>
+            <input type="number" id="examMark" value="0" class="inputBox">
+          </div>
+          <input type="range" id="examMarkSlider" min="0" max="100" value="0">
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BUTTONS + RESULTS -->
+    <div class="row">
+
+      <!-- Buttons -->
+      <div class="column">
+        <button id="calcBtn" onclick="calculateFinalGrade()">
+          Calculate Final Grade
+        </button>
+
+        <button id="resetBtn" onclick="resetForm()">
+          Reset
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="column">
+        <div id="resultBox">
+          <p id="placeholder"><b>Results will appear here...</b></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* Letter Grade */
+    function getLetterGrade(score) {
+      if (score >= 90) return "A";
+      if (score >= 80) return "B";
+      if (score >= 70) return "C";
+      if (score >= 60) return "D";
+      return "F";
+    }
+
+    /* NSGE */
+    function getNSGE(score) {
+      if (score >= 85) return "E";
+      if (score >= 70) return "G";
+      if (score >= 50) return "S";
+      return "N";
+    }
+
+    /* GPA */
+    function getGPA(score) {
+      if (score >= 90) return 4.0;
+      if (score >= 85) return 3.7;
+      if (score >= 80) return 3.3;
+      if (score >= 75) return 3.0;
+      if (score >= 70) return 2.7;
+      if (score >= 65) return 2.3;
+      if (score >= 60) return 2.0;
+      if (score >= 50) return 1.0;
+      return 0.0;
+    }
+
+    function calculateFinalGrade() {
+      let termWeight = parseFloat(termWeightInput.value);
+      let examWeight = parseFloat(examWeightInput.value);
+	  let totalWeight = termWeight + examWeight;
+
+      let termMark = parseFloat(termMarkInput.value);
+      let examMark = parseFloat(examMarkInput.value);
+
+      let termContribution = termMark * (termWeight / totalWeight);
+      let examContribution = examMark * (examWeight / totalWeight);
+
+      let finalGrade = termContribution + examContribution;
+
+      let letter = getLetterGrade(finalGrade);
+      let nsge = getNSGE(finalGrade);
+      let gpa = getGPA(finalGrade);
+
+      placeholder.style.display = "none";
+
+      resultBox.innerHTML = `
+        <p class="bigResult">
+          Final Grade: ${finalGrade.toFixed(2)}%
+          <span class="gradeInline">(${letter})</span>
+          <span class="gradeInline">[${nsge}]</span>
+        </p>
+
+        <p class="subInfo">GPA Equivalent: ${gpa.toFixed(1)} / 4.0</p>
+
+        <hr>
+
+        <p><b>Explanation:</b></p>
+        <p>Term Contribution = ${termMark} × (${termWeight} ÷ ${totalWeight}) = ${termContribution.toFixed(2)}</p>
+        <p>Exam Contribution = ${examMark} × (${examWeight} ÷ ${totalWeight}) = ${examContribution.toFixed(2)}</p>
+      `;
+    }
+
+    function resetForm() {
+      termWeightInput.value = 70;
+      examWeightInput.value = 30;
+      termMarkInput.value = 75;
+      examMarkInput.value = 0;
+
+      termWeightSlider.value = 70;
+      examWeightSlider.value = 30;
+      termMarkSlider.value = 75;
+      examMarkSlider.value = 0;
+
+      resultBox.innerHTML = `<p id="placeholder"><b>Results will appear here...</b></p>`;
+    }
+
+    /* Input + Slider Sync + Auto Recalc */
+    const termWeightInput = document.getElementById("termWeight");
+    const examWeightInput = document.getElementById("examWeight");
+    const termMarkInput = document.getElementById("termMark");
+    const examMarkInput = document.getElementById("examMark");
+
+    const termWeightSlider = document.getElementById("termWeightSlider");
+    const examWeightSlider = document.getElementById("examWeightSlider");
+    const termMarkSlider = document.getElementById("termMarkSlider");
+    const examMarkSlider = document.getElementById("examMarkSlider");
+
+    const resultBox = document.getElementById("resultBox");
+    const placeholder = document.getElementById("placeholder");
+
+    function sync(input, slider) {
+      input.addEventListener("input", () => {
+        slider.value = input.value;
+        calculateFinalGrade();
+      });
+
+      slider.addEventListener("input", () => {
+        input.value = slider.value;
+        calculateFinalGrade();
+      });
+    }
+
+    sync(termWeightInput, termWeightSlider);
+    sync(examWeightInput, examWeightSlider);
+    sync(termMarkInput, termMarkSlider);
+    sync(examMarkInput, examMarkSlider);
+  </script>
+
+</body>
+</html>
