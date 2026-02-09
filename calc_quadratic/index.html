@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quadratic Equation Calculator</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 15px;
+  background: #f4f6fb;
+  font-size: 15px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+  letter-spacing: 1px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #004080;
+  border-bottom: 2px solid #004080;
+  padding-bottom: 4px;
+}
+
+.grid-top {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.grid-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 12px;
+}
+
+.box {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  text-align: center;
+}
+
+.aCoeff { color: red;    font-weight: bold; }
+.bCoeff { color: blue;   font-weight: bold; }
+.cCoeff { color: green;  font-weight: bold; }
+.kCoeff { color: purple; font-weight: bold; }
+.rCoeff { color: orange; font-weight: bold; }
+
+.input-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 4px 0;
+  gap: 8px;
+}
+label {
+  font-size: 16px;
+  cursor: pointer;
+  width: 20px;
+  text-align: right;
+}
+input {
+  width: 60px;
+  padding: 4px;
+  font-size: 15px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.title-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+button {
+  padding: 8px 16px;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+button:hover { background: #0056b3; }
+
+.results-box {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 14px;
+  text-align: left;
+  min-height: 180px;
+}
+
+.graph-container { position: relative; }
+canvas { 
+  background: white; 
+  border-radius: 10px; 
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
+  display: block; 
+  margin: 0 auto; 
+  width: 300px;
+  height: 250px;
+}
+
+.tooltip {
+  position: absolute;
+  background: rgba(50,50,50,0.9);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+}
+
+.equation {
+  font-size: 18px;
+  margin: 12px 0;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<h1>Quadratic Equation Calculator</h1>
+
+<!-- Top Row – 4 boxes -->
+<div class="grid-top">
+  <div class="box">
+    <h3>Standard Form</h3>
+    <p class="equation">
+      <span class="aCoeff">a</span>x² + 
+      <span class="bCoeff">b</span>x + 
+      <span class="cCoeff">c</span> = 0
+    </p>
+  </div>
+  <div class="box">
+    <h3>Factored Form</h3>
+    <p class="equation">a(x − <span class="rCoeff">r₁</span>)(x − <span class="rCoeff">r₂</span>)</p>
+  </div>
+  <div class="box">
+    <h3>Vertex Form</h3>
+    <p class="equation">a(x − h)² + <span class="kCoeff">k</span></p>
+  </div>
+  <div class="box">
+    <h3>Discriminant</h3>
+    <p class="equation">
+      <span style="color: black; font-weight: bold;">D</span> = 
+      <span class="bCoeff">b</span>² − 4
+      <span class="aCoeff">a</span>
+      <span class="cCoeff">c</span>
+    </p>
+  </div>
+</div>
+
+<!-- Bottom Row -->
+<div class="grid-bottom">
+
+  <div class="box">
+    <div class="title-row">
+      <h3>Enter Coefficients</h3>
+      <button onclick="solveQuadratic()">Solve</button>
+      <button onclick="resetCalculator()">Reset</button>
+    </div>
+    <div class="input-row">
+      <label for="a" class="aCoeff">a:</label>
+      <input type="number" id="a" value="1">
+    </div>
+    <div class="input-row">
+      <label for="b" class="bCoeff">b:</label>
+      <input type="number" id="b" value="0">
+    </div>
+    <div class="input-row">
+      <label for="c" class="cCoeff">c:</label>
+      <input type="number" id="c" value="0">
+    </div>
+  </div>
+
+  <div class="box results-box" id="results">
+    Enter coefficients and click Solve.
+  </div>
+
+  <div class="box graph-container">
+    <h3>Graph</h3>
+    <canvas id="graph" width="300" height="250"></canvas>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+</div>
+
+<script>
+// Helpers
+function formatNum(num) {
+  if (Number.isInteger(num)) return num;
+  return num.toFixed(2);
+}
+
+function formatSign(num) {
+  const sign = num >= 0 ? '+' : '−';
+  const absVal = Math.abs(num);
+  const display = Number.isInteger(absVal) ? absVal : absVal.toFixed(2);
+  return sign + ' ' + display;
+}
+
+let graphPoints = [];
+
+function solveQuadratic() {
+  const a = parseFloat(document.getElementById("a").value);
+  const b = parseFloat(document.getElementById("b").value);
+  const c = parseFloat(document.getElementById("c").value);
+  if (a === 0) { alert("a cannot be 0!"); return; }
+
+  const discriminant = b * b - 4 * a * c;
+
+  let discFormula = '';
+  if (b === 0 && c === 0) {
+    discFormula = `0 − 4×${a}×0 = 0`;
+  } else if (b === 0) {
+    discFormula = `0 − 4×${a}×${c} = ${formatNum(discriminant)}`;
+  } else if (c === 0) {
+    discFormula = `${b}² − 4×${a}×0 = ${formatNum(discriminant)}`;
+  } else {
+    discFormula = `${b}² − 4×${a}×${c} = ${formatNum(discriminant)}`;
+  }
+
+  let root1, root2, root1Disp, root2Disp;
+  if (discriminant >= 0) {
+    root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+    root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+    root1Disp = formatNum(root1);
+    root2Disp = formatNum(root2);
+  } else {
+    root1 = root2 = "Complex";
+    root1Disp = root2Disp = "Complex";
+  }
+
+  const h = -b / (2 * a);
+  const k = a * h * h + b * h + c;
+
+  const hDisp = formatNum(h);
+  const kDisp = formatNum(k);
+
+  const stdForm = `<span class="aCoeff">${a}</span>x² <span class="bCoeff">${formatSign(b)}</span>x <span class="cCoeff">${formatSign(c)}</span> = 0`;
+
+  let factForm = root1 === "Complex" 
+    ? "Cannot factor over the reals (complex roots)"
+    : `<span class="aCoeff">${a}</span>(x <span class="rCoeff">${formatSign(-root1)}</span>) (x <span class="rCoeff">${formatSign(-root2)}</span>)`;
+
+  const vertexForm = `<span class="aCoeff">${a}</span>(x ${formatSign(-h)})² <span class="kCoeff">${formatSign(k)}</span>`;
+
+  document.getElementById("results").innerHTML = `
+    <div><strong>Discriminant:</strong> ${discFormula}</div>
+    <div><strong>Roots:</strong> <span class="rCoeff">r₁</span> = <span class="rCoeff">${root1Disp}</span>, <span class="rCoeff">r₂</span> = <span class="rCoeff">${root2Disp}</span></div>
+    <hr>
+    <div><strong>Standard Form:</strong><br>${stdForm}</div>
+    <div><strong>Factored Form:</strong><br>${factForm}</div>
+    <div><strong>Vertex Form:</strong><br>${vertexForm}</div>
+  `;
+
+  drawGraph(a, b, c, root1, root2, h, k);
+}
+
+function drawGraph(a, b, c, r1, r2, h, k) {
+  const canvas = document.getElementById("graph");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  graphPoints = [];
+
+  let yValues = [];
+  for (let x = -10; x <= 10; x += 0.1) {
+    yValues.push(a * x * x + b * x + c);
+  }
+  const yMin = Math.min(...yValues);
+  const yMax = Math.max(...yValues);
+  const yRange = Math.max(Math.abs(yMin), Math.abs(yMax)) * 1.2 || 10;
+
+  // Grid
+  ctx.strokeStyle = "#ddd"; ctx.lineWidth = 1;
+  for (let i = -10; i <= 10; i++) {
+    let cx = canvas.width / 2 + i * 15;
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+  }
+  const yStep = yRange / 5;
+  for (let i = -yRange; i <= yRange; i += yStep) {
+    let cy = canvas.height / 2 - i * (canvas.height / 2) / yRange;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = "black"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2);
+  ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+
+  // Parabola
+  ctx.beginPath(); ctx.strokeStyle = "blue"; ctx.lineWidth = 2;
+  for (let x = -10; x <= 10; x += 0.05) {
+    const y = a * x * x + b * x + c;
+    const cx = canvas.width / 2 + x * 15;
+    const cy = canvas.height / 2 - y * (canvas.height / 2) / yRange;
+    graphPoints.push({ cx, cy, xVal: x, yVal: y });
+    if (x === -10) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
+  }
+  ctx.stroke();
+
+  // Roots (orange)
+  if (r1 !== "Complex") {
+    ctx.fillStyle = "orange";
+    let rx1 = canvas.width / 2 + r1 * 15;
+    let rx2 = canvas.width / 2 + r2 * 15;
+    ctx.beginPath(); ctx.arc(rx1, canvas.height / 2, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.beginPath(); ctx.arc(rx2, canvas.height / 2, 5, 0, 2 * Math.PI); ctx.fill();
+  }
+
+  // Vertex (purple)
+  ctx.fillStyle = "purple";
+  let vx = canvas.width / 2 + h * 15;
+  let vy = canvas.height / 2 - k * (canvas.height / 2) / yRange;
+  ctx.beginPath(); ctx.arc(vx, vy, 5, 0, 2 * Math.PI); ctx.fill();
+
+  // Labels
+  ctx.fillStyle = "black"; ctx.font = "12px Arial";
+  ctx.fillText("X", canvas.width - 15, canvas.height / 2 - 5);
+  ctx.fillText("Y", canvas.width / 2 + 5, 10);
+}
+
+// Tooltip
+const canvas = document.getElementById("graph");
+const tooltip = document.getElementById("tooltip");
+canvas.addEventListener("mousemove", function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  let closest = null; let minDist = 10;
+  for (let p of graphPoints) {
+    let dx = p.cx - mouseX;
+    let dy = p.cy - mouseY;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < minDist) { closest = p; minDist = dist; }
+  }
+
+  if (closest) {
+    tooltip.style.display = "block";
+    tooltip.style.left = (closest.cx + 10) + "px";
+    tooltip.style.top = (closest.cy - 25) + "px";
+    tooltip.innerHTML = `(${closest.xVal.toFixed(2)}, ${closest.yVal.toFixed(2)})`;
+  } else {
+    tooltip.style.display = "none";
+  }
+});
+
+function resetCalculator() {
+  document.getElementById("a").value = "1";
+  document.getElementById("b").value = "0";
+  document.getElementById("c").value = "0";
+  document.getElementById("results").innerHTML = "Enter coefficients and click Solve.";
+  document.getElementById("graph").getContext("2d").clearRect(0, 0, 300, 250);
+}
+</script>
+
+</body>
+</html>
