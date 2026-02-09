@@ -70,13 +70,23 @@ label {
   width: 20px;
   text-align: right;
 }
-input {
+
+/* Hide number input spinners/arrows */
+input[type="number"] {
   width: 60px;
   padding: 4px;
   font-size: 15px;
   text-align: center;
   border-radius: 6px;
   border: 1px solid #ccc;
+  -moz-appearance: textfield;           /* Firefox */
+}
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .title-row {
@@ -125,14 +135,14 @@ button.reset:hover { background: #5a6268; }
   padding: 14px 16px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  font-size: 15.5px;          /* ← increased from 14px */
+  font-size: 15.5px;
   line-height: 1.45;
   text-align: left;
   min-height: 190px;
 }
 
 .results-box strong {
-  font-size: 16.5px;          /* slightly larger for headings inside */
+  font-size: 16.5px;
 }
 
 .results-box div {
@@ -226,15 +236,15 @@ canvas {
 
     <div class="input-row">
       <label for="a" class="aCoeff">a:</label>
-      <input type="number" id="a" value="1">
+      <input type="number" id="a" value="1" step="any">
     </div>
     <div class="input-row">
       <label for="b" class="bCoeff">b:</label>
-      <input type="number" id="b" value="0">
+      <input type="number" id="b" value="0" step="any">
     </div>
     <div class="input-row">
       <label for="c" class="cCoeff">c:</label>
-      <input type="number" id="c" value="0">
+      <input type="number" id="c" value="0" step="any">
     </div>
   </div>
 
@@ -251,6 +261,36 @@ canvas {
 </div>
 
 <script>
+// Arrow key navigation between inputs
+document.addEventListener('keydown', function(e) {
+  const inputs = [
+    document.getElementById('a'),
+    document.getElementById('b'),
+    document.getElementById('c')
+  ];
+
+  const active = document.activeElement;
+  if (!active || !inputs.includes(active)) return;
+
+  const currentIndex = inputs.indexOf(active);
+  let nextIndex = currentIndex;
+
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    nextIndex = (currentIndex + 1) % 3;
+    e.preventDefault();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    nextIndex = (currentIndex - 1 + 3) % 3;
+    e.preventDefault();
+  }
+
+  if (nextIndex !== currentIndex) {
+    inputs[nextIndex].focus();
+    // Optional: place cursor at end of text
+    const len = inputs[nextIndex].value.length;
+    inputs[nextIndex].setSelectionRange(len, len);
+  }
+});
+
 // Helpers
 function formatNum(num) {
   if (Number.isInteger(num)) return num;
@@ -298,9 +338,6 @@ function solveQuadratic() {
 
   const h = -b / (2 * a);
   const k = a * h * h + b * h + c;
-
-  const hDisp = formatNum(h);
-  const kDisp = formatNum(k);
 
   const stdForm = `<span class="aCoeff">${a}</span>x² <span class="bCoeff">${formatSign(b)}</span>x <span class="cCoeff">${formatSign(c)}</span> = 0`;
 
