@@ -197,13 +197,13 @@ canvas {
   <div class="box">
     <h3>Factored Form</h3>
     <div class="math-expression">
-      <span class="aCoeff">a</span>(x − <span class="rCoeff">r₁</span>)(x − <span class="rCoeff">r₂</span>)
+      a</span>(x − <span class="rCoeff">r₁</span>)(x − <span class="rCoeff">r₂</span>)
     </div>
   </div>
   <div class="box">
     <h3>Vertex Form</h3>
     <div class="math-expression">
-      <span class="aCoeff">a</span>(x − <span class="kCoeff">h</span>)² + <span class="kCoeff">k</span>
+      a(x − <span class="kCoeff">h</span>)² + <span class="kCoeff">k</span>
     </div>
   </div>
   <div class="box">
@@ -325,9 +325,9 @@ function solveQuadratic() {
     <hr>
     <div><strong>Standard:</strong><br><span class="aCoeff">${formatNum(a)}</span>x² <span class="bCoeff">${formatSign(b)}</span>x <span class="cCoeff">${formatSign(c)}</span> = 0</div>
     <div><strong>Factored:</strong><br>${D >= 0 ? 
-      `<span class="aCoeff">${formatNum(a)}</span>(x <span class="rCoeff">${formatSign(-r1)}</span>)(x <span class="rCoeff">${formatSign(-r2)}</span>)` : 
+      `${formatNum(a)}(x <span class="rCoeff">${formatSign(-r1)}</span>)(x <span class="rCoeff">${formatSign(-r2)}</span>)` : 
       "Cannot factor over reals (complex roots)"}</div>
-    <div><strong>Vertex form:</strong><br><span class="aCoeff">${formatNum(a)}</span>(x <span class="kCoeff">${formatSign(-h)}</span>)² <span class="kCoeff">${formatSign(k)}</span></div>
+    <div><strong>Vertex form:</strong><br>${formatNum(a)}</span>(x <span class="kCoeff">${formatSign(-h)}</span>)² <span class="kCoeff">${formatSign(k)}</span></div>
   `;
 
   drawGraph(a, b, c, r1, r2, h, k);
