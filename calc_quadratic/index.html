@@ -185,10 +185,7 @@ canvas {
   <div class="box">
     <h3>Discriminant</h3>
     <p class="equation">
-      <span style="color: black; font-weight: bold;">D</span> = 
-      <span class="bCoeff">b</span>² − 4
-      <span class="aCoeff">a</span>
-      <span class="cCoeff">c</span>
+      D = <span class="bCoeff">b</span>² − 4<span class="aCoeff">a</span><span class="cCoeff">c</span>
     </p>
   </div>
 </div>
@@ -268,9 +265,9 @@ function solveQuadratic() {
   } else if (b === 0) {
     discFormula = `0 − 4×${a}×${c} = ${formatNum(discriminant)}`;
   } else if (c === 0) {
-    discFormula = `${b}² − 4×${a}×0 = ${formatNum(discriminant)}`;
+    discFormula = `<span class="bCoeff">${b}</span>² − 4×${a}×0 = ${formatNum(discriminant)}`;
   } else {
-    discFormula = `${b}² − 4×${a}×${c} = ${formatNum(discriminant)}`;
+    discFormula = `<span class="bCoeff">${b}</span>² − 4×<span class="aCoeff">${a}</span>×<span class="cCoeff">${c}</span> = ${formatNum(discriminant)}`;
   }
 
   let root1, root2, root1Disp, root2Disp;
@@ -294,12 +291,13 @@ function solveQuadratic() {
 
   let factForm = root1 === "Complex" 
     ? "Cannot factor over the reals (complex roots)"
-    : `<span class="aCoeff">${a}</span>(x <span class="rCoeff">${formatSign(-root1)}</span>) (x <span class="rCoeff">${formatSign(-root2)}</span>)`;
+    : `<span class="aCoeff">${a}</span>(x <span class="rCoeff">${formatSign(-root1)}</span>)(x <span class="rCoeff">${formatSign(-root2)}</span>)`;
 
   const vertexForm = `<span class="aCoeff">${a}</span>(x ${formatSign(-h)})² <span class="kCoeff">${formatSign(k)}</span>`;
 
   document.getElementById("results").innerHTML = `
-    <div><strong>Discriminant:</strong> ${discFormula}</div>
+    <div><strong>Discriminant:</strong> D = (<span class="bCoeff">${b}</span>)² − 4(<span class="aCoeff">${a}</span>)(<span class="cCoeff">${c}</span>) = ${formatNum(discriminant)}</div>
+    <div><strong>Calculation steps:</strong> ${discFormula}</div>
     <div><strong>Roots:</strong> <span class="rCoeff">r₁</span> = <span class="rCoeff">${root1Disp}</span>, <span class="rCoeff">r₂</span> = <span class="rCoeff">${root2Disp}</span></div>
     <hr>
     <div><strong>Standard Form:</strong><br>${stdForm}</div>
