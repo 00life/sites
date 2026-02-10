@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encode / Decode Tool</title>
+
+  <style>
+    :root {
+      --primary:    #0066cc;
+      --primary-d:  #004c99;
+      --success:    #28a745;
+      --warning:    #e67e22;
+      --light:      #f8f9fa;
+      --gray:       #6c757d;
+      --gray-lt:    #dee2e6;
+      --gray-dk:    #495057;
+      --bg:         #f5f7fa;
+      --card:       white;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0066cc 0%, #003366 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    header p  { margin: 0.35rem 0 0; opacity: 0.9; font-size: 0.9rem; }
+
+    .container {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: minmax(340px, 1fr) minmax(480px, 2fr);
+      gap: 1.25rem;
+      min-height: calc(100vh - 110px);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 0.55rem 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .mode-btn.encrypt { background: var(--success); }
+    .mode-btn.decrypt { background: var(--warning); }
+
+    .mode-btn:hover { filter: brightness(1.08); }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      min-width: 80px;
+      color: #333;
+    }
+
+    select, input[type="text"], input[type="password"] {
+      padding: 0.6rem 0.9rem;
+      border: 1px solid var(--gray-lt);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      flex: 1;
+      background: #fdfdff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      max-height: 400px;
+      padding: 0.85rem;
+      border: 1px solid var(--gray-lt);
+      border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.94rem;
+      background: #fdfdff;
+      resize: vertical;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-header label {
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    button.btn {
+      padding: 0.55rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary  { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-d); }
+
+    .btn-secondary { background: var(--gray); color: white; }
+    .btn-secondary:hover { background: var(--gray-dk); }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.9rem;
+      background: #f0f4f8;
+      border: 1px solid var(--gray-lt);
+      border-radius: 6px;
+      color: #444;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.13s;
+    }
+
+    .tool-btn:hover {
+      background: #e3e9f0;
+      border-color: #bdc9d9;
+      color: #222;
+    }
+
+    .tool-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    #result {
+      flex: 1;
+      min-height: 320px;
+      background: #f9faff;
+      font-family: 'Consolas', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      padding: 0.85rem;
+      border: 1px solid var(--gray-lt);
+      border-radius: 8px;
+      resize: none;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0.4rem 0 0.6rem;
+      color: #333;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .hint { font-size: 0.78rem; color: #666; }
+
+    @media (max-width: 960px) {
+      .container { grid-template-columns: 1fr; }
+      #result { min-height: 260px; }
+      .input-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Encoding • Decoding • AES-GCM</h1>
+  <p>Base64 • URL • AES-GCM (Web Crypto)</p>
+</header>
+
+<div class="container">
+
+  <!-- LEFT CARD -->
+  <div class="card">
+
+    <div class="mode-toggle">
+      <button id="modeToggle" class="mode-btn encrypt" type="button">
+        🔒 Encrypt ⇄
+      </button>
+      <span class="hint">Click to switch mode</span>
+    </div>
+
+    <div class="row">
+      <label>Method</label>
+      <select id="method">
+        <option value="base64">Base64 Encode</option>
+        <option value="url">URL Encode</option>
+        <option value="aes-gcm">AES-GCM Encrypt</option>
+      </select>
+    </div>
+
+    <div class="row" id="aesKeyRow" style="display:none;">
+      <label>Key</label>
+      <input type="password" id="aesKey" placeholder="Enter password…" autocomplete="off">
+    </div>
+
+    <div>
+      <div class="input-header">
+        <label>Input</label>
+        <div class="actions">
+          <button class="tool-btn" id="copyInput" title="Copy input to clipboard">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            Copy
+          </button>
+          <button class="tool-btn" id="pasteInput" title="Paste from clipboard">
+            <svg viewBox="0 0 24 24"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0S9.6.84 9.18 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm6 18H6V4h1v3h10V4h1v16z"/></svg>
+            Paste
+          </button>
+          <button class="btn btn-secondary" id="clear">Clear</button>
+        </div>
+      </div>
+      <textarea id="input" placeholder="Paste or type your text here..."></textarea>
+    </div>
+
+    <button id="execute" class="btn btn-primary" style="align-self: stretch; padding: 0.8rem;">
+      Execute
+    </button>
+
+  </div>
+
+  <!-- RIGHT CARD -->
+  <div class="card">
+    <div class="result-header">
+      <div class="section-title">Result</div>
+      <button class="tool-btn" id="copyResult" title="Copy result to clipboard">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+    </div>
+    <textarea id="result" readonly placeholder="Result will appear here..."></textarea>
+  </div>
+
+</div>
+
+<script>
+let isEncryptMode = true;
+
+const dom = {
+  modeBtn       : document.getElementById("modeToggle"),
+  methodSelect  : document.getElementById("method"),
+  aesKeyRow     : document.getElementById("aesKeyRow"),
+  aesKey        : document.getElementById("aesKey"),
+  input         : document.getElementById("input"),
+  result        : document.getElementById("result"),
+  executeBtn    : document.getElementById("execute"),
+  clearBtn      : document.getElementById("clear"),
+  copyInputBtn  : document.getElementById("copyInput"),
+  pasteInputBtn : document.getElementById("pasteInput"),
+  copyResultBtn : document.getElementById("copyResult"),
+};
+
+function updateUI() {
+  dom.modeBtn.textContent = isEncryptMode ? "🔒 Encrypt ⇄" : "🔓 Decrypt ⇄";
+  dom.modeBtn.className = `mode-btn ${isEncryptMode ? "encrypt" : "decrypt"}`;
+
+  dom.methodSelect.innerHTML = isEncryptMode
+    ? `
+      <option value="base64">Base64 Encode</option>
+      <option value="url">URL Encode</option>
+      <option value="aes-gcm">AES-GCM Encrypt</option>
+    `
+    : `
+      <option value="base64">Base64 Decode</option>
+      <option value="url">URL Decode</option>
+      <option value="aes-gcm">AES-GCM Decrypt</option>
+    `;
+
+  dom.aesKeyRow.style.display = 
+    dom.methodSelect.value === "aes-gcm" ? "flex" : "none";
+
+  dom.result.value = "";
+}
+
+dom.modeBtn.addEventListener("click", () => {
+  isEncryptMode = !isEncryptMode;
+  updateUI();
+});
+
+dom.methodSelect.addEventListener("change", () => {
+  dom.aesKeyRow.style.display = 
+    dom.methodSelect.value === "aes-gcm" ? "flex" : "none";
+});
+
+function toBase64(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+}
+
+function fromBase64(str) {
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function deriveKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits", "deriveKey"]
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: enc.encode("simple-salt-for-this-tool-2025"),
+      iterations: 150000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    true,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function process() {
+  const text = dom.input.value.trim();
+  if (!text) {
+    dom.result.value = "Please enter some text first.";
+    return;
+  }
+
+  const method = dom.methodSelect.value;
+
+  try {
+    if (method === "base64") {
+      dom.result.value = isEncryptMode ? btoa(text) : atob(text);
+    }
+
+    else if (method === "url") {
+      dom.result.value = isEncryptMode
+        ? encodeURIComponent(text)
+        : decodeURIComponent(text);
+    }
+
+    else if (method === "aes-gcm") {
+      const password = dom.aesKey.value.trim();
+      if (!password) {
+        dom.result.value = "AES-GCM requires a password.";
+        return;
+      }
+
+      const cryptoKey = await deriveKey(password);
+      const encoder = new TextEncoder();
+
+      if (isEncryptMode) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await crypto.subtle.encrypt(
+          { name: "AES-GCM", iv, tagLength: 128 },
+          cryptoKey,
+          encoder.encode(text)
+        );
+
+        const combined = new Uint8Array(encrypted.byteLength + 12);
+        combined.set(new Uint8Array(encrypted), 0);
+        combined.set(iv, encrypted.byteLength);
+
+        dom.result.value = toBase64(combined);
+      } else {
+        const combined = fromBase64(text);
+        if (combined.length < 28) {
+          throw new Error("Input too short to be valid AES-GCM ciphertext");
+        }
+
+        const ciphertextAndTag = combined.slice(0, -12);
+        const iv = combined.slice(-12);
+
+        const decrypted = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv, tagLength: 128 },
+          cryptoKey,
+          ciphertextAndTag
+        );
+
+        dom.result.value = new TextDecoder().decode(decrypted);
+      }
+    }
+
+  } catch (err) {
+    dom.result.value = "❌ " + (err.message || "Invalid input / wrong password / corrupted data");
+  }
+}
+
+dom.executeBtn.addEventListener("click", process);
+
+dom.copyInputBtn.addEventListener("click", async () => {
+  const text = dom.input.value.trim();
+  if (text) {
+    await navigator.clipboard.writeText(text);
+  }
+});
+
+dom.pasteInputBtn.addEventListener("click", async () => {
+  try {
+    dom.input.value = await navigator.clipboard.readText();
+  } catch (err) {
+    console.error("Paste failed:", err);
+  }
+});
+
+dom.copyResultBtn.addEventListener("click", async () => {
+  const text = dom.result.value.trim();
+  if (text && text !== "Processing...") {
+    await navigator.clipboard.writeText(text);
+  }
+});
+
+dom.clearBtn.addEventListener("click", () => {
+  dom.input.value = "";
+  dom.result.value = "";
+});
+
+updateUI();
+</script>
+
+</body>
+</html>
