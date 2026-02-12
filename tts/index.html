@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TTS Reader Pro Max</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #111, #1a1a1a);
+      color: white;
+      margin: 0;
+      padding: 20px;
+      transition: 0.3s;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #f5f5f5, #ddd);
+      color: black;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 35px rgba(0,0,0,0.55);
+    }
+
+    body.light .app {
+      background: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    p {
+      text-align: center;
+      opacity: 0.7;
+      margin-bottom: 25px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    button, select {
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: #005fd1;
+    }
+
+    .stop {
+      background: crimson;
+    }
+
+    .stop:hover {
+      background: darkred;
+    }
+
+    .toggle {
+      background: #444;
+    }
+
+    .toggle:hover {
+      background: #666;
+    }
+
+    .replay {
+      background: limegreen;
+    }
+
+    .replay:hover {
+      background: green;
+    }
+
+    /* Rate slider */
+    .sliderBox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      padding: 8px 14px;
+      border-radius: 12px;
+    }
+
+    input[type="range"] {
+      width: 110px;
+    }
+
+    /* Progress */
+    .progressBox {
+      margin: 15px 0;
+    }
+
+    .progressBar {
+      width: 100%;
+      height: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      overflow: hidden;
+    }
+
+    .progressFill {
+      height: 100%;
+      width: 0%;
+      background: lime;
+      transition: width 0.25s;
+    }
+
+    .timeInfo {
+      font-size: 13px;
+      margin-top: 6px;
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    /* Text Container */
+    .text-container {
+      position: relative;
+      height: 360px;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      font-size: 16px;
+      border: none;
+      resize: none;
+      outline: none;
+      border-radius: 18px;
+      background: #1c1c1c;
+      color: white;
+    }
+
+    body.light textarea {
+      background: #fff;
+      color: black;
+    }
+
+    /* Overlay */
+    .readOverlay {
+      position: absolute;
+      inset: 0;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.8;
+      overflow-y: auto;
+      display: none;
+      white-space: pre-wrap;
+      cursor: pointer;
+    }
+
+    body.light .readOverlay {
+      background: white;
+      color: black;
+    }
+
+    body:not(.light) .readOverlay {
+      background: #1c1c1c;
+      color: white;
+    }
+
+    .sentence {
+      padding: 4px;
+      border-radius: 10px;
+      display: inline-block;
+      margin: 3px 0;
+    }
+
+    .sentence:hover {
+      background: rgba(0,150,255,0.15);
+    }
+
+    .activeSentence {
+      background: rgba(0,150,255,0.25);
+    }
+
+    .wordHighlight {
+      background: yellow;
+      color: black;
+      font-weight: bold;
+      padding: 2px 5px;
+      border-radius: 8px;
+    }
+
+    /* Mobile */
+    @media(max-width: 600px) {
+      button, select {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      input[type="range"] {
+        width: 80px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <h1>🔊 TTS Reader Pro Max</h1>
+  <p>Click any sentence while reading • Auto-saves your text • Replay anytime</p>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button onclick="startSpeech()">▶ Speak</button>
+    <button onclick="pauseSpeech()">⏸ Pause</button>
+    <button onclick="resumeSpeech()">⏯ Resume</button>
+    <button class="stop" onclick="stopSpeech()">⏹ Stop</button>
+
+    <button class="replay" onclick="replaySpeech()">🔁 Replay</button>
+
+    <select id="voiceSelect"></select>
+
+    <div class="sliderBox">
+      ⚡ Rate
+      <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+      <span id="rateValue">1.0</span>
+    </div>
+
+    <button class="toggle" onclick="toggleDarkMode()">🌙 Mode</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progressBox">
+    <div class="progressBar">
+      <div class="progressFill" id="progressFill"></div>
+    </div>
+    <div class="timeInfo" id="timeInfo">0s / 0s</div>
+  </div>
+
+  <!-- Text -->
+  <div class="text-container">
+    <textarea id="textInput" placeholder="Paste or type text here..."></textarea>
+    <div class="readOverlay" id="readOverlay"></div>
+  </div>
+
+</div>
+
+<script>
+  let voices = [];
+  let utterance;
+  let sentences = [];
+  let currentSentenceIndex = 0;
+  let currentWordIndex = 0;
+
+  let startTime = 0;
+  let totalEstimated = 0;
+  let fullText = "";
+
+  /* LocalStorage Save */
+  const textInput = document.getElementById("textInput");
+  textInput.value = localStorage.getItem("savedText") || "";
+
+  textInput.addEventListener("input", () => {
+    localStorage.setItem("savedText", textInput.value);
+  });
+
+  /* Rate Slider */
+  const rateSlider = document.getElementById("rateSlider");
+  const rateValue = document.getElementById("rateValue");
+
+  rateSlider.addEventListener("input", () => {
+    rateValue.textContent = rateSlider.value;
+  });
+
+  /* Load voices */
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    let voiceSelect = document.getElementById("voiceSelect");
+    voiceSelect.innerHTML = "";
+
+    let ziraIndex = 0;
+
+    voices.forEach((voice, i) => {
+      let option = document.createElement("option");
+      option.value = i;
+      option.textContent = voice.name;
+      voiceSelect.appendChild(option);
+
+      if (voice.name.toLowerCase().includes("zira")) {
+        ziraIndex = i;
+      }
+    });
+
+    voiceSelect.value = ziraIndex;
+  }
+
+  speechSynthesis.onvoiceschanged = loadVoices;
+
+  /* Sentence split */
+  function splitSentences(text) {
+    return text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  }
+
+  function estimateTime(text) {
+    let words = text.split(/\s+/).length;
+    return Math.round(words / 2.2);
+  }
+
+  /* Render overlay */
+  function renderOverlay() {
+    let overlay = document.getElementById("readOverlay");
+
+    overlay.innerHTML = sentences.map((sentence, sIndex) => {
+      let words = sentence.split(" ");
+
+      if (sIndex === currentSentenceIndex) {
+        words = words.map((w, wIndex) => {
+          if (wIndex === currentWordIndex) {
+            return `<span class="wordHighlight">${w}</span>`;
+          }
+          return w;
+        });
+      }
+
+      return `
+        <span class="sentence ${sIndex === currentSentenceIndex ? "activeSentence" : ""}"
+              onclick="jumpToSentence(${sIndex})">
+          ${words.join(" ")}
+        </span>
+      `;
+    }).join(" ");
+
+    let active = overlay.querySelector(".wordHighlight");
+    if (active) {
+      active.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    updateProgress();
+  }
+
+  /* Jump */
+  function jumpToSentence(index) {
+    currentSentenceIndex = index;
+    currentWordIndex = 0;
+    speechSynthesis.cancel();
+    speakFromCurrent();
+  }
+
+  /* Progress */
+  function updateProgress() {
+    let percent = (currentSentenceIndex / sentences.length) * 100;
+    document.getElementById("progressFill").style.width = percent + "%";
+
+    let elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("timeInfo").textContent =
+      `${elapsed}s / ~${totalEstimated}s`;
+  }
+
+  /* Speak */
+  function speakFromCurrent() {
+    let remainingText = sentences.slice(currentSentenceIndex).join(" ");
+
+    utterance = new SpeechSynthesisUtterance(remainingText);
+
+    let voiceIndex = document.getElementById("voiceSelect").value;
+    utterance.voice = voices[voiceIndex];
+
+    utterance.rate = rateSlider.value;
+
+    utterance.onboundary = (event) => {
+      if (event.name === "word") {
+        currentWordIndex++;
+
+        let wordsInSentence =
+          sentences[currentSentenceIndex].split(" ").length;
+
+        if (currentWordIndex >= wordsInSentence) {
+          currentSentenceIndex++;
+          currentWordIndex = 0;
+        }
+
+        if (currentSentenceIndex < sentences.length) {
+          renderOverlay();
+        }
+      }
+    };
+
+    utterance.onend = () => {
+      // Speech finished
+      document.getElementById("progressFill").style.width = "100%";
+    };
+
+    speechSynthesis.speak(utterance);
+  }
+
+  /* Start */
+  function startSpeech() {
+    stopSpeech();
+
+    fullText = textInput.value.trim();
+    if (!fullText) return alert("Enter some text!");
+
+    sentences = splitSentences(fullText);
+
+    totalEstimated = estimateTime(fullText);
+    startTime = Date.now();
+
+    textInput.style.display = "none";
+    document.getElementById("readOverlay").style.display = "block";
+
+    renderOverlay();
+    speakFromCurrent();
+  }
+
+  function replaySpeech() {
+    stopSpeech();
+    startSpeech();
+  }
+
+  function pauseSpeech() { speechSynthesis.pause(); }
+  function resumeSpeech() { speechSynthesis.resume(); }
+
+  function stopSpeech() {
+    speechSynthesis.cancel();
+
+    textInput.style.display = "block";
+    document.getElementById("readOverlay").style.display = "none";
+
+    document.getElementById("progressFill").style.width = "0%";
+    document.getElementById("timeInfo").textContent = "0s / 0s";
+
+    currentSentenceIndex = 0;
+    currentWordIndex = 0;
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle("light");
+  }
+
+  loadVoices();
+</script>
+
+</body>
+</html>
