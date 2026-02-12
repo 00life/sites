@@ -114,6 +114,24 @@
       width: 110px;
     }
 
+    /* Limit Indicator */
+    .limitBox {
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      text-align: center;
+      min-width: 190px;
+      line-height: 1.3;
+      transition: 0.2s;
+    }
+
+    .limitWarning {
+      background: rgba(255,0,0,0.25);
+      color: #ffdddd;
+      font-weight: bold;
+    }
+
     /* Progress */
     .progressBox {
       margin: 15px 0;
@@ -178,16 +196,12 @@
       display: none;
       white-space: pre-wrap;
       cursor: pointer;
+      background: #1c1c1c;
     }
 
     body.light .readOverlay {
       background: white;
       color: black;
-    }
-
-    body:not(.light) .readOverlay {
-      background: #1c1c1c;
-      color: white;
     }
 
     .sentence {
@@ -213,15 +227,10 @@
       border-radius: 8px;
     }
 
-    /* Mobile */
     @media(max-width: 600px) {
       button, select {
         flex: 1;
         min-width: 120px;
-      }
-
-      input[type="range"] {
-        width: 80px;
       }
     }
   </style>
@@ -231,7 +240,7 @@
 <div class="app">
 
   <h1>🔊 TTS Reader Pro Max</h1>
-  <p>Click any sentence while reading • Auto-saves your text • Replay anytime</p>
+  <p>Click any sentence • Auto-save • Replay anytime</p>
 
   <!-- Controls -->
   <div class="controls">
@@ -251,6 +260,9 @@
     </div>
 
     <button class="toggle" onclick="toggleDarkMode()">🌙 Mode</button>
+
+    <!-- Limit Indicator -->
+    <div class="limitBox" id="limitBox"></div>
   </div>
 
   <!-- Progress -->
@@ -278,15 +290,38 @@
 
   let startTime = 0;
   let totalEstimated = 0;
-  let fullText = "";
 
-  /* LocalStorage Save */
+  /* Limits */
+  const MAX_CHARS = 5000;
+  const MAX_WORDS = 800;
+
   const textInput = document.getElementById("textInput");
+  const limitBox = document.getElementById("limitBox");
+
+  /* Auto-save */
   textInput.value = localStorage.getItem("savedText") || "";
 
   textInput.addEventListener("input", () => {
     localStorage.setItem("savedText", textInput.value);
+    updateLimits();
   });
+
+  function updateLimits() {
+    let text = textInput.value.trim();
+    let chars = text.length;
+    let words = text.split(/\s+/).filter(Boolean).length;
+
+    limitBox.innerHTML =
+      `${chars} / ${MAX_CHARS} chars<br>${words} / ${MAX_WORDS} words`;
+
+    if (chars > MAX_CHARS || words > MAX_WORDS) {
+      limitBox.classList.add("limitWarning");
+    } else {
+      limitBox.classList.remove("limitWarning");
+    }
+  }
+
+  updateLimits();
 
   /* Rate Slider */
   const rateSlider = document.getElementById("rateSlider");
@@ -296,7 +331,7 @@
     rateValue.textContent = rateSlider.value;
   });
 
-  /* Load voices */
+  /* Voices */
   function loadVoices() {
     voices = speechSynthesis.getVoices();
     let voiceSelect = document.getElementById("voiceSelect");
@@ -320,7 +355,6 @@
 
   speechSynthesis.onvoiceschanged = loadVoices;
 
-  /* Sentence split */
   function splitSentences(text) {
     return text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
   }
@@ -330,7 +364,6 @@
     return Math.round(words / 2.2);
   }
 
-  /* Render overlay */
   function renderOverlay() {
     let overlay = document.getElementById("readOverlay");
 
@@ -362,15 +395,6 @@
     updateProgress();
   }
 
-  /* Jump */
-  function jumpToSentence(index) {
-    currentSentenceIndex = index;
-    currentWordIndex = 0;
-    speechSynthesis.cancel();
-    speakFromCurrent();
-  }
-
-  /* Progress */
   function updateProgress() {
     let percent = (currentSentenceIndex / sentences.length) * 100;
     document.getElementById("progressFill").style.width = percent + "%";
@@ -380,7 +404,13 @@
       `${elapsed}s / ~${totalEstimated}s`;
   }
 
-  /* Speak */
+  function jumpToSentence(index) {
+    currentSentenceIndex = index;
+    currentWordIndex = 0;
+    speechSynthesis.cancel();
+    speakFromCurrent();
+  }
+
   function speakFromCurrent() {
     let remainingText = sentences.slice(currentSentenceIndex).join(" ");
 
@@ -410,23 +440,21 @@
     };
 
     utterance.onend = () => {
-      // Speech finished
       document.getElementById("progressFill").style.width = "100%";
     };
 
     speechSynthesis.speak(utterance);
   }
 
-  /* Start */
   function startSpeech() {
     stopSpeech();
 
-    fullText = textInput.value.trim();
-    if (!fullText) return alert("Enter some text!");
+    let text = textInput.value.trim();
+    if (!text) return;
 
-    sentences = splitSentences(fullText);
+    sentences = splitSentences(text);
 
-    totalEstimated = estimateTime(fullText);
+    totalEstimated = estimateTime(text);
     startTime = Date.now();
 
     textInput.style.display = "none";
