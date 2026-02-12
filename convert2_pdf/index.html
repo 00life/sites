@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File to PDF Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #preview {
+            position: absolute;
+            left: -10000px;
+            width: 600px; /* Approximate A4 width in px for PDF rendering */
+            padding: 20px;
+            background: white;
+        }
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>File to PDF Converter</h1>
+    <p>Upload a single DOCX file or multiple image files (JPG, PNG, GIF) to convert to PDF.</p>
+    <input type="file" id="fileInput" multiple accept=".docx, image/*">
+    <button onclick="convertToPDF()">Convert to PDF</button>
+    <div id="error"></div>
+    <div id="preview"></div>
+
+    <script>
+        function convertToPDF() {
+            const files = [...document.getElementById('fileInput').files];
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '';
+
+            if (files.length === 0) {
+                errorDiv.textContent = 'Please select at least one file.';
+                return;
+            }
+
+            const docxFiles = files.filter(f => f.name.toLowerCase().endsWith('.docx'));
+            const imageFiles = files.filter(f => f.type.startsWith('image/'));
+
+            if (files.length !== docxFiles.length + imageFiles.length) {
+                errorDiv.textContent = 'Unsupported file types. Only DOCX and images are allowed.';
+                return;
+            }
+
+            if (docxFiles.length > 1 || (docxFiles.length > 0 && imageFiles.length > 0)) {
+                errorDiv.textContent = 'Please upload either one DOCX file or multiple images, not both.';
+                return;
+            }
+
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+
+            const opt = {
+                margin: 0.5,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            if (docxFiles.length === 1) {
+                const file = docxFiles[0];
+                opt.filename = file.name.replace(/\.docx$/i, '.pdf');
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = function() {
+                    mammoth.convertToHtml({ arrayBuffer: reader.result })
+                        .then(result => {
+                            preview.innerHTML = result.value;
+                            html2pdf().set(opt).from(preview).save();
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            errorDiv.textContent = 'Error converting DOCX file.';
+                        });
+                };
+                reader.onerror = function() {
+                    errorDiv.textContent = 'Error reading DOCX file.';
+                };
+            } else if (imageFiles.length > 0) {
+                let loaded = 0;
+                opt.filename = imageFiles.length === 1 ? imageFiles[0].name.replace(/\.(jpg|jpeg|png|gif)$/i, '.pdf') : 'images.pdf';
+
+                imageFiles.forEach(file => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = function() {
+                        const img = new Image();
+                        img.src = reader.result;
+                        img.style.display = 'block';
+                        img.style.width = '100%'; // Fit to page width
+                        img.style.marginBottom = '20px'; // Space between images
+
+                        // Wrap in div for potential page breaks
+                        const container = document.createElement('div');
+                        container.style.pageBreakAfter = 'always';
+                        container.appendChild(img);
+
+                        preview.appendChild(container);
+
+                        loaded++;
+                        if (loaded === imageFiles.length) {
+                            html2pdf().set(opt).from(preview).save();
+                        }
+                    };
+                    reader.onerror = function() {
+                        errorDiv.textContent = 'Error reading image file.';
+                    };
+                });
+            }
+        }
+    </script>
+</body>
+</html>
