@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crypto Tool • RSA & OpenPGP-style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #f8fafc;
+      --surface:   #ffffff;
+      --border:    #e2e8f0;
+      --text:      #0f172a;
+      --text-sec:  #475569;
+      --primary:   #3b82f6;
+      --primary-h: #2563eb;
+      --encrypt:   #f59e0b;
+      --encrypt-h: #d97706;
+      --decrypt:   #10b981;
+      --decrypt-h: #059669;
+      --danger:    #ef4444;
+      --upload:    #60a5fa;
+      --upload-bg: #eff6ff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --radius:    10px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 32px 40px 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+
+    .subtitle {
+      color: var(--text-sec);
+      font-size: 0.97rem;
+    }
+
+    main {
+      padding: 32px 40px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .controls > * {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    select, button {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      font-size: 0.97rem;
+      font-weight: 500;
+    }
+
+    select {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-h);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel label {
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: #1e293b;
+    }
+
+    textarea {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92rem;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      resize: vertical;
+      min-height: 180px;
+      background: #fdfefe;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-sm {
+      font-size: 0.86rem;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .btn-copy-paste     { background: #64748b; color: white; }
+    .btn-copy-paste:hover{ background: #475569; }
+    .btn-clear           { background: #6b7280; color: white; }
+    .btn-clear:hover     { background: #4b5563; }
+    .btn-download        { background: #0891b2; color: white; }
+    .btn-download:hover  { background: #0e7490; }
+
+    .btn-upload {
+      background: var(--upload-bg);
+      color: var(--upload);
+      border: 1px solid #93c5fd;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-upload:hover {
+      background: #dbeafe;
+      border-color: #60a5fa;
+    }
+
+    .operation-area {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin: 40px 0 32px;
+    }
+
+    #toggleBtn {
+      min-width: 180px;
+      height: 54px;
+      font-size: 1.08rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    #toggleBtn.encrypt { background: var(--encrypt); color: white; }
+    #toggleBtn.encrypt:hover { background: var(--encrypt-h); }
+
+    #toggleBtn.decrypt { background: var(--decrypt); color: white; }
+    #toggleBtn.decrypt:hover { background: var(--decrypt-h); }
+
+    .mode-hint {
+      color: #64748b;
+      font-size: 0.94rem;
+      font-style: italic;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .warning {
+      color: var(--danger);
+      font-weight: 500;
+      display: none;
+    }
+
+    @media (max-width: 960px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      main { padding: 28px 24px; }
+    }
+
+    @media (max-width: 640px) {
+      header, main { padding-left: 16px; padding-right: 16px; }
+      .operation-area { flex-direction: column; align-items: stretch; }
+      #toggleBtn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Crypto Tool</h1>
+    <div class="subtitle">RSA-OAEP & hybrid (PGP-style) encryption • browser-only • Web Crypto API</div>
+  </header>
+
+  <main>
+    <div class="controls">
+      <button class="btn-primary" onclick="generateKeys()">Generate Key Pair</button>
+      <div>
+        <label for="modeSelect">Algorithm:</label>
+        <select id="modeSelect">
+          <option value="rsa">RSA-OAEP (short messages)</option>
+          <option value="pgp" selected>Hybrid (PGP-style – recommended)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <label>Public Key (JWK)</label>
+        <textarea id="pubKey" placeholder="Public key will appear here..."></textarea>
+        <div class="toolbar">
+          <button class="btn-sm btn-copy-paste" onclick="copyToClipboard('pubKey')">Copy</button>
+          <button class="btn-sm btn-copy-paste" onclick="pasteTo('pubKey')">Paste</button>
+          <button class="btn-sm btn-clear" onclick="clearText('pubKey')">Clear</button>
+          <button class="btn-sm btn-download" onclick="downloadText('pubKey', 'public.jwk')">Download</button>
+          <label class="btn-sm btn-upload">Upload <input type="file" accept=".jwk,.json" hidden onchange="loadFile(event, 'pubKey')"></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <label>Private Key (JWK – secret!)</label>
+        <textarea id="privKey" placeholder="Private key will appear here..."></textarea>
+        <div class="toolbar">
+          <button class="btn-sm btn-copy-paste" onclick="copyToClipboard('privKey')">Copy</button>
+          <button class="btn-sm btn-copy-paste" onclick="pasteTo('privKey')">Paste</button>
+          <button class="btn-sm btn-clear" onclick="clearText('privKey')">Clear</button>
+          <button class="btn-sm btn-download" onclick="downloadText('privKey', 'private.jwk')">Download</button>
+          <label class="btn-sm btn-upload">Upload <input type="file" accept=".jwk,.json" hidden onchange="loadFile(event, 'privKey')"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="operation-area">
+      <button id="toggleBtn" class="encrypt" onclick="toggleOperation()">
+        <span id="lockIcon">🔒</span> Encrypt
+      </button>
+      <span class="mode-hint">Click button to switch between Encrypt ↔ Decrypt</span>
+      <input type="hidden" id="operation" value="encrypt">
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <label>Unencrypted Message</label>
+        <textarea id="message" placeholder="Your message…" oninput="updateCounter()"></textarea>
+        <div class="status-line">
+          <div>
+            <button class="btn-sm btn-copy-paste" onclick="copyToClipboard('message')">Copy</button>
+            <button class="btn-sm btn-copy-paste" onclick="pasteTo('message')">Paste</button>
+            <button class="btn-sm btn-clear" onclick="clearText('message')">Clear</button>
+            <label class="btn-sm btn-upload">Upload <input type="file" accept=".txt,.md" hidden onchange="loadFile(event, 'message')"></label>
+          </div>
+          <div>
+            <span id="charCount">0 chars (~0 bytes)</span>
+            <span id="rsaWarning" class="warning"> — too long for RSA mode</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <label>Encrypted Message</label>
+        <textarea id="result" placeholder="Result will appear here…"></textarea>
+        <div class="status-line">
+          <div>
+            <button class="btn-sm btn-copy-paste" onclick="copyToClipboard('result')">Copy</button>
+            <button class="btn-sm btn-copy-paste" onclick="pasteTo('result')">Paste</button>
+            <button class="btn-sm btn-clear" onclick="clearText('result')">Clear</button>
+            <button class="btn-sm btn-download" onclick="downloadText('result', 'message.enc')">Download</button>
+            <label class="btn-sm btn-upload">Upload <input type="file" accept=".txt" hidden onchange="loadFile(event, 'result')"></label>
+          </div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:40px; color:#64748b; font-size:0.9rem;">
+      All processing happens in your browser — nothing is sent anywhere.
+    </div>
+  </main>
+</div>
+
+<script>
+// ─── Helpers ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+async function copyToClipboard(id) {
+  const text = $(id).value.trim();
+  if (!text) return;
+  try { await navigator.clipboard.writeText(text); } catch {}
+}
+
+async function pasteTo(id) {
+  try {
+    const text = await navigator.clipboard.readText();
+    $(id).value = text.trim();
+    if (id === 'message') updateCounter();
+  } catch {}
+}
+
+function loadFile(e, target) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    $(target).value = ev.target.result.trim();
+    if (target === 'message') updateCounter();
+  };
+  reader.readAsText(file);
+}
+
+function clearText(id) { 
+  $(id).value = ''; 
+  if (id === 'message') updateCounter(); 
+}
+
+function downloadText(id, name) {
+  const text = $(id).value.trim();
+  if (!text) return;
+  const blob = new Blob([text], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function updateCounter() {
+  const text = $('message').value;
+  const bytes = new TextEncoder().encode(text).length;
+  $('charCount').textContent = `${text.length} chars (~${bytes} bytes)`;
+  $('rsaWarning').style.display = 
+    ($('modeSelect').value === 'rsa' && bytes > 190) ? 'inline' : 'none';
+}
+
+$('modeSelect').onchange = updateCounter;
+
+// ─── Toggle Encrypt ↔ Decrypt ──────────────────────────────────────────────
+function toggleOperation() {
+  const btn = $('toggleBtn');
+  const hidden = $('operation');
+  const icon = $('lockIcon');
+
+  if (hidden.value === 'encrypt') {
+    hidden.value = 'decrypt';
+    icon.textContent = '🔓';
+    btn.lastChild.textContent = ' Decrypt';
+    btn.classList.replace('encrypt','decrypt');
+  } else {
+    hidden.value = 'encrypt';
+    icon.textContent = '🔒';
+    btn.lastChild.textContent = ' Encrypt';
+    btn.classList.replace('decrypt','encrypt');
+  }
+}
+
+// ─── Core Crypto Functions ─────────────────────────────────────────────────
+async function generateKeys() {
+  try {
+    const pair = await crypto.subtle.generateKey({
+      name: 'RSA-OAEP',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: 'SHA-256'
+    }, true, ['encrypt','decrypt','wrapKey','unwrapKey']);
+
+    $('pubKey').value = JSON.stringify(await crypto.subtle.exportKey('jwk', pair.publicKey), null, 2);
+    $('privKey').value = JSON.stringify(await crypto.subtle.exportKey('jwk', pair.privateKey), null, 2);
+  } catch (e) { console.error(e); }
+}
+
+async function importKey(jwkStr, usages) {
+  return crypto.subtle.importKey('jwk', JSON.parse(jwkStr), {
+    name: 'RSA-OAEP', hash: 'SHA-256'
+  }, false, usages);
+}
+
+function uint8ToB64(arr) { return btoa(String.fromCharCode(...arr)); }
+function b64ToUint8(str) {
+  const bin = atob(str);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+async function process() {
+  const mode = $('modeSelect').value;
+  const op   = $('operation').value;
+  const pub  = $('pubKey').value.trim();
+  const priv = $('privKey').value.trim();
+  const msg  = $('message').value;
+  const res  = $('result');
+
+  if (op === 'encrypt') {
+    if (!pub || !msg.trim()) return;
+    try {
+      const pubKey = await importKey(pub, ['encrypt','wrapKey']);
+      let payload;
+
+      if (mode === 'rsa') {
+        const data = new TextEncoder().encode(msg);
+        if (data.length > 190) return;
+        const ct = await crypto.subtle.encrypt({name:'RSA-OAEP'}, pubKey, data);
+        payload = {m:'rsa', c:uint8ToB64(ct)};
+      } else {
+        const aes = await crypto.subtle.generateKey({name:'AES-GCM', length:256}, true, ['encrypt']);
+        const iv  = crypto.getRandomValues(new Uint8Array(12));
+        const ct  = await crypto.subtle.encrypt({name:'AES-GCM', iv}, aes, new TextEncoder().encode(msg));
+        const wk  = await crypto.subtle.wrapKey('raw', aes, pubKey, {name:'RSA-OAEP'});
+        payload = {m:'pgp', wk:uint8ToB64(wk), iv:uint8ToB64(iv), c:uint8ToB64(ct)};
+      }
+
+      res.value = btoa(JSON.stringify(payload));
+    } catch(e){console.error(e);}
+  } else {
+    if (!priv || !res.value.trim()) return;
+    try {
+      const privKey = await importKey(priv, ['decrypt','unwrapKey']);
+      const data = JSON.parse(atob(res.value.trim()));
+      let plaintext;
+
+      if (data.m === 'rsa') {
+        plaintext = await crypto.subtle.decrypt({name:'RSA-OAEP'}, privKey, b64ToUint8(data.c));
+      } else if (data.m === 'pgp') {
+        const aes = await crypto.subtle.unwrapKey('raw', b64ToUint8(data.wk), privKey,
+          {name:'RSA-OAEP'}, 'AES-GCM', false, ['decrypt']);
+        plaintext = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64ToUint8(data.iv)},
+          aes, b64ToUint8(data.c));
+      }
+
+      $('message').value = new TextDecoder().decode(plaintext);
+    } catch(e){console.error(e);}
+  }
+}
+
+// Init
+updateCounter();
+</script>
+</body>
+</html>
