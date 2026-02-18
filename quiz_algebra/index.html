@@ -493,7 +493,7 @@
       let student = document.getElementById("username").value;
       let date = document.getElementById("quizDate").value;
       let accuracy = Math.round((score / totalQuestions) * 100);
-      let str_score = `${student}///${date}///${totalQuestions}///${eval(score/totalQuestions*100)}`;
+      let str_score = `${student}///${date}///${totalQuestions}///${accuracy}`;
       let encodeScore = btoa(str_score);
 
       document.getElementById("feedbackBox").innerHTML = `
