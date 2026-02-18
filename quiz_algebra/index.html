@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algebra 1 Quiz App</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #dff6ff, #f9fbff);
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+
+    header {
+      background: #0077ff;
+      color: white;
+      text-align: center;
+      padding: 18px;
+      font-size: 1.9rem;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0px 5px 14px rgba(0,0,0,0.15);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    /* SETTINGS GRID */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+
+    /* Buttons */
+    .start-container {
+      text-align: center;
+      margin-top: 22px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .btn-start {
+      background: #0077ff;
+      color: white;
+      width: 30%;
+    }
+
+    .btn-submit {
+      background: #22c55e;
+      color: white;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .btn-next {
+      background: orange;
+      color: white;
+      width: 40%;
+      margin-top: 18px;
+      display: none;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 18px;
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #0077ff;
+      transition: 0.3s;
+    }
+
+    /* Equation Display */
+    .equation-box {
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 15px;
+      margin: 18px 0;
+      background: #f0f8ff;
+      border-radius: 14px;
+      color: #003366;
+    }
+
+    .answer-area {
+      max-width: 420px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .feedback {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    .correct {
+      background: #dcfce7;
+      border-left: 6px solid #22c55e;
+    }
+
+    .wrong {
+      background: #fee2e2;
+      border-left: 6px solid #ef4444;
+    }
+
+    ul {
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    @media(max-width: 900px) {
+      .settings-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .btn-start, .btn-next {
+        width: 100%;
+      }
+    }
+
+    @media(max-width: 500px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  📘 Algebra 1 Equation Solver Quiz (Grades 9–12)
+</header>
+
+<div class="container">
+
+  <!-- SETTINGS -->
+  <div class="card">
+    <h2>⚙️ Quiz Settings</h2>
+
+    <div class="settings-grid">
+
+      <div>
+        <label>👤 Student Name</label>
+        <input type="text" id="username" value="User">
+      </div>
+
+      <div>
+        <label>📅 Date</label>
+        <input type="date" id="quizDate">
+      </div>
+
+      <div>
+        <label>📌 Unit Focus</label>
+        <select id="unitSelect">
+          <option value="mixed">Mixed Review (Full Algebra 1)</option>
+          <option value="basics">Solving Basics</option>
+          <option value="distribution">Distribution</option>
+          <option value="liketerms">Combining Like Terms</option>
+          <option value="bothsides">Variables on Both Sides</option>
+          <option value="fractions">Fractions & Decimals</option>
+        </select>
+      </div>
+
+      <div>
+        <label>⭐ Difficulty</label>
+        <select id="difficulty">
+          <option value="1">Easy</option>
+          <option value="2">Medium</option>
+          <option value="3">Hard</option>
+        </select>
+      </div>
+
+      <div>
+        <label>❓ Questions</label>
+        <input type="number" id="numQuestions" value="5" min="1" max="25">
+      </div>
+
+    </div>
+
+    <div class="start-container">
+      <button class="btn-start" id="startBtn">Start Quiz 🚀</button>
+    </div>
+  </div>
+
+  <!-- QUIZ AREA -->
+  <div class="card" id="quizArea" style="display:none;">
+    <h2>✏️ Solve the Equation</h2>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="equation-box" id="questionText"></div>
+
+    <div class="answer-area">
+      <input type="text" id="answerInput" placeholder="Answer (ex: 3/6 or 0.5)">
+      <button class="btn-submit" id="submitBtn">Submit Answer ✅</button>
+    </div>
+
+    <div id="feedbackBox"></div>
+
+    <div style="text-align:center;">
+      <button class="btn-next" id="nextBtn">Next Question ➡️</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById("quizDate").value =
+    new Date().toISOString().split("T")[0];
+
+  let currentQuestion = 0;
+  let totalQuestions = 5;
+  let score = 0;
+  let equationData = {};
+
+  const startBtn = document.getElementById("startBtn");
+  const submitBtn = document.getElementById("submitBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  /* ✅ FRACTION SIMPLIFICATION SUPPORT */
+
+  function gcd(a, b) {
+    return b === 0 ? Math.abs(a) : gcd(b, a % b);
+  }
+
+  function simplifyFraction(numerator, denominator) {
+    let divisor = gcd(numerator, denominator);
+    numerator /= divisor;
+    denominator /= divisor;
+
+    // Keep denominator positive
+    if (denominator < 0) {
+      numerator *= -1;
+      denominator *= -1;
+    }
+
+    return { num: numerator, den: denominator };
+  }
+
+  function parseFraction(input) {
+    input = input.trim();
+
+    // If decimal/whole number
+    if (!input.includes("/")) {
+      return { num: parseFloat(input), den: 1 };
+    }
+
+    let parts = input.split("/");
+    let num = parseInt(parts[0]);
+    let den = parseInt(parts[1]);
+
+    return simplifyFraction(num, den);
+  }
+
+  function fractionsEqual(f1, f2) {
+    return f1.num === f2.num && f1.den === f2.den;
+  }
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function updateProgress() {
+    let percent = (currentQuestion / totalQuestions) * 100;
+    document.getElementById("progressFill").style.width = percent + "%";
+  }
+
+  startBtn.onclick = () => {
+    totalQuestions = parseInt(document.getElementById("numQuestions").value);
+    currentQuestion = 0;
+    score = 0;
+    document.getElementById("quizArea").style.display = "block";
+    generateQuestion();
+  };
+
+  function generateQuestion() {
+    nextBtn.style.display = "none";
+    document.getElementById("feedbackBox").innerHTML = "";
+    updateProgress();
+
+    let unit = document.getElementById("unitSelect").value;
+    let x = randomInt(1, 10);
+
+    let generators = [];
+
+    // Basics
+    generators.push(() => {
+      let a = randomInt(2, 6);
+      let b = randomInt(1, 10);
+      let c = a * x + b;
+      return {
+        equation: `${a}x + ${b} = ${c}`,
+        answer: { num: x, den: 1 },
+        steps: [
+          `Subtract ${b}`,
+          `${a}x = ${c - b}`,
+          `Divide by ${a}`,
+          `x = ${x}`
+        ]
+      };
+    });
+
+    // Fractions Example
+    generators.push(() => {
+      let denom = randomInt(2, 5);
+      let b = randomInt(1, 4);
+      let resultNum = x + b * denom;
+
+      return {
+        equation: `x/${denom} + ${b} = ${resultNum}/${denom}`,
+        answer: simplifyFraction(x, 1),
+        steps: [
+          `Subtract ${b}`,
+          `x/${denom} = ${x}/${denom}`,
+          `Multiply both sides by ${denom}`,
+          `x = ${x}`
+        ]
+      };
+    });
+
+    equationData =
+      unit === "fractions"
+        ? generators[1]()
+        : generators[0]();
+
+    document.getElementById("questionText").innerText = equationData.equation;
+    document.getElementById("answerInput").value = "";
+  }
+
+  submitBtn.onclick = () => {
+    let userFraction = parseFraction(document.getElementById("answerInput").value);
+    let correctFraction = equationData.answer;
+
+    let isCorrect = fractionsEqual(userFraction, correctFraction);
+
+    if (isCorrect) score++;
+
+    document.getElementById("feedbackBox").innerHTML = `
+      <div class="feedback ${isCorrect ? "correct" : "wrong"}">
+        <h3>${isCorrect ? "✅ Correct!" : "❌ Incorrect"}</h3>
+
+        <p><b>Correct Answer:</b> x = ${correctFraction.num}/${correctFraction.den}</p>
+
+        <h4>Step-by-Step Solution:</h4>
+        <ul>
+          ${equationData.steps.map(s => `<li>${s}</li>`).join("")}
+        </ul>
+      </div>
+    `;
+
+    nextBtn.style.display = "inline-block";
+  };
+
+  nextBtn.onclick = () => {
+    currentQuestion++;
+
+    if (currentQuestion < totalQuestions) {
+      generateQuestion();
+    } else {
+      document.getElementById("feedbackBox").innerHTML = `
+        <div class="feedback correct">
+          <h2>🎉 Quiz Finished!</h2>
+          <p>Final Score: <b>${score} / ${totalQuestions}</b></p>
+        </div>
+      `;
+      nextBtn.style.display = "none";
+    }
+
+    updateProgress();
+  };
+</script>
+
+</body>
+</html>
