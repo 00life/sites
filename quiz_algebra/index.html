@@ -66,7 +66,7 @@
       box-sizing: border-box;
     }
 
-    /* Buttons */
+    /* Start Button */
     .start-container {
       text-align: center;
       margin-top: 22px;
@@ -248,7 +248,7 @@
     <div class="equation-box" id="questionText"></div>
 
     <div class="answer-area">
-      <input type="text" id="answerInput" placeholder="Answer (ex: 3/6 or 0.5)">
+      <input type="text" id="answerInput" placeholder="Answer (ex: 3/4)">
       <button class="btn-submit" id="submitBtn">Submit Answer ✅</button>
     </div>
 
@@ -274,43 +274,13 @@
   const submitBtn = document.getElementById("submitBtn");
   const nextBtn = document.getElementById("nextBtn");
 
-  /* ✅ FRACTION SIMPLIFICATION SUPPORT */
-
-  function gcd(a, b) {
-    return b === 0 ? Math.abs(a) : gcd(b, a % b);
-  }
-
-  function simplifyFraction(numerator, denominator) {
-    let divisor = gcd(numerator, denominator);
-    numerator /= divisor;
-    denominator /= divisor;
-
-    // Keep denominator positive
-    if (denominator < 0) {
-      numerator *= -1;
-      denominator *= -1;
+  function parseAnswer(str) {
+    str = str.trim();
+    if (str.includes("/")) {
+      let parts = str.split("/");
+      return parseFloat(parts[0]) / parseFloat(parts[1]);
     }
-
-    return { num: numerator, den: denominator };
-  }
-
-  function parseFraction(input) {
-    input = input.trim();
-
-    // If decimal/whole number
-    if (!input.includes("/")) {
-      return { num: parseFloat(input), den: 1 };
-    }
-
-    let parts = input.split("/");
-    let num = parseInt(parts[0]);
-    let den = parseInt(parts[1]);
-
-    return simplifyFraction(num, den);
-  }
-
-  function fractionsEqual(f1, f2) {
-    return f1.num === f2.num && f1.den === f2.den;
+    return parseFloat(str);
   }
 
   function randomInt(min, max) {
@@ -340,14 +310,14 @@
 
     let generators = [];
 
-    // Basics
+    // Solving Basics
     generators.push(() => {
       let a = randomInt(2, 6);
       let b = randomInt(1, 10);
       let c = a * x + b;
       return {
         equation: `${a}x + ${b} = ${c}`,
-        answer: { num: x, den: 1 },
+        answer: x,
         steps: [
           `Subtract ${b}`,
           `${a}x = ${c - b}`,
@@ -357,46 +327,104 @@
       };
     });
 
-    // Fractions Example
+    // Distribution
     generators.push(() => {
-      let denom = randomInt(2, 5);
-      let b = randomInt(1, 4);
-      let resultNum = x + b * denom;
-
+      let a = randomInt(2, 4);
+      let b = randomInt(1, 6);
+      let result = a * (x + b);
       return {
-        equation: `x/${denom} + ${b} = ${resultNum}/${denom}`,
-        answer: simplifyFraction(x, 1),
+        equation: `${a}(x + ${b}) = ${result}`,
+        answer: x,
         steps: [
-          `Subtract ${b}`,
-          `x/${denom} = ${x}/${denom}`,
-          `Multiply both sides by ${denom}`,
+          `Distribute ${a}`,
+          `${a}x + ${a*b} = ${result}`,
+          `Subtract ${a*b}`,
+          `${a}x = ${result - a*b}`,
+          `Divide by ${a}`,
           `x = ${x}`
         ]
       };
     });
 
-    equationData =
-      unit === "fractions"
-        ? generators[1]()
-        : generators[0]();
+    // Like Terms
+    generators.push(() => {
+      let a = randomInt(2, 5);
+      let b = randomInt(2, 5);
+      let constant = randomInt(1, 6);
+      let right = (a + b) * x - constant;
+      return {
+        equation: `${a}x + ${b}x - ${constant} = ${right}`,
+        answer: x,
+        steps: [
+          `Combine like terms: ${(a+b)}x - ${constant}`,
+          `Add ${constant}`,
+          `${(a+b)}x = ${right+constant}`,
+          `Divide by ${(a+b)}`,
+          `x = ${x}`
+        ]
+      };
+    });
+
+    // Both Sides
+    generators.push(() => {
+      let a = randomInt(3, 6);
+      let c = randomInt(1, 3);
+      let b = randomInt(1, 6);
+      let d = a*x + b - c*x;
+      return {
+        equation: `${a}x + ${b} = ${c}x + ${d}`,
+        answer: x,
+        steps: [
+          `Subtract ${c}x`,
+          `${a-c}x + ${b} = ${d}`,
+          `Subtract ${b}`,
+          `${a-c}x = ${d-b}`,
+          `Divide by ${a-c}`,
+          `x = ${x}`
+        ]
+      };
+    });
+
+    // Fractions
+    generators.push(() => {
+      let denom = randomInt(2, 5);
+      let b = randomInt(1, 4);
+      let result = (x/denom + b).toFixed(2);
+      return {
+        equation: `x/${denom} + ${b} = ${result}`,
+        answer: x,
+        steps: [
+          `Subtract ${b}`,
+          `x/${denom} = ${(result-b).toFixed(2)}`,
+          `Multiply by ${denom}`,
+          `x = ${x}`
+        ]
+      };
+    });
+
+    // Unit filtering
+    if (unit === "basics") equationData = generators[0]();
+    else if (unit === "distribution") equationData = generators[1]();
+    else if (unit === "liketerms") equationData = generators[2]();
+    else if (unit === "bothsides") equationData = generators[3]();
+    else if (unit === "fractions") equationData = generators[4]();
+    else equationData = generators[randomInt(0, generators.length-1)]();
 
     document.getElementById("questionText").innerText = equationData.equation;
     document.getElementById("answerInput").value = "";
   }
 
   submitBtn.onclick = () => {
-    let userFraction = parseFraction(document.getElementById("answerInput").value);
-    let correctFraction = equationData.answer;
+    let userAnswer = parseAnswer(document.getElementById("answerInput").value);
+    let correctAnswer = equationData.answer;
 
-    let isCorrect = fractionsEqual(userFraction, correctFraction);
-
+    let isCorrect = Math.abs(userAnswer - correctAnswer) < 0.001;
     if (isCorrect) score++;
 
     document.getElementById("feedbackBox").innerHTML = `
       <div class="feedback ${isCorrect ? "correct" : "wrong"}">
         <h3>${isCorrect ? "✅ Correct!" : "❌ Incorrect"}</h3>
-
-        <p><b>Correct Answer:</b> x = ${correctFraction.num}/${correctFraction.den}</p>
+        <p><b>Correct Answer:</b> x = ${correctAnswer}</p>
 
         <h4>Step-by-Step Solution:</h4>
         <ul>
@@ -410,7 +438,6 @@
 
   nextBtn.onclick = () => {
     currentQuestion++;
-
     if (currentQuestion < totalQuestions) {
       generateQuestion();
     } else {
@@ -422,7 +449,6 @@
       `;
       nextBtn.style.display = "none";
     }
-
     updateProgress();
   };
 </script>
