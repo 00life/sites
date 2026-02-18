@@ -6,3 +6,4 @@ https://00life.github.io/sites/crypt_sym/ #[ (En/de)coding for base64, and (en/d
 https://00life.github.io/sites/crypt_asym/ #[ (En/de)cryptin for PGP and RSA ]<br>
 https://00life.github.io/sites/tts/ #(Text-To-Speech Reader)<br>
 https://00life.github.io/sites/convert2_pdf/ #(Convert images or word documents to pdf files)<br>
+https://00life.github.io/sites/quiz_algebra/ #(Quiz app for algebraic math)<br>
