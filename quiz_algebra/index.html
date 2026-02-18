@@ -19,12 +19,12 @@
       color: white;
       text-align: center;
       padding: 18px;
-      font-size: 1.9rem;
+      font-size: 2rem;
       font-weight: bold;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1050px;
       margin: auto;
       padding: 20px;
     }
@@ -39,7 +39,7 @@
 
     h2 {
       margin: 0;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
 
     /* SETTINGS GRID */
@@ -66,7 +66,7 @@
       box-sizing: border-box;
     }
 
-    /* Start Button */
+    /* Buttons */
     .start-container {
       text-align: center;
       margin-top: 22px;
@@ -124,7 +124,7 @@
 
     /* Equation Display */
     .equation-box {
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       font-weight: bold;
       text-align: center;
       padding: 15px;
@@ -135,7 +135,7 @@
     }
 
     .answer-area {
-      max-width: 420px;
+      max-width: 450px;
       margin: auto;
       text-align: center;
     }
@@ -160,6 +160,11 @@
     ul {
       margin-top: 10px;
       line-height: 1.6;
+    }
+
+    .report {
+      text-align: center;
+      font-size: 1.1rem;
     }
 
     @media(max-width: 900px) {
@@ -208,8 +213,9 @@
         <label>📌 Unit Focus</label>
         <select id="unitSelect">
           <option value="mixed">Mixed Review (Full Algebra 1)</option>
-          <option value="basics">Solving Basics</option>
-          <option value="distribution">Distribution</option>
+          <option value="basics">Two-Step Equations</option>
+          <option value="multistep">Multi-Step Equations</option>
+          <option value="distribution">Distribution & Parentheses</option>
           <option value="liketerms">Combining Like Terms</option>
           <option value="bothsides">Variables on Both Sides</option>
           <option value="fractions">Fractions & Decimals</option>
@@ -248,7 +254,7 @@
     <div class="equation-box" id="questionText"></div>
 
     <div class="answer-area">
-      <input type="text" id="answerInput" placeholder="Answer (ex: 3/4)">
+      <input type="text" id="answerInput" placeholder="Answer (ex: 3/6 or 0.5)">
       <button class="btn-submit" id="submitBtn">Submit Answer ✅</button>
     </div>
 
@@ -274,13 +280,33 @@
   const submitBtn = document.getElementById("submitBtn");
   const nextBtn = document.getElementById("nextBtn");
 
-  function parseAnswer(str) {
-    str = str.trim();
-    if (str.includes("/")) {
-      let parts = str.split("/");
-      return parseFloat(parts[0]) / parseFloat(parts[1]);
+  /* FRACTION SUPPORT */
+  function gcd(a, b) {
+    return b === 0 ? Math.abs(a) : gcd(b, a % b);
+  }
+
+  function simplifyFraction(num, den) {
+    let divisor = gcd(num, den);
+    num /= divisor;
+    den /= divisor;
+    if (den < 0) {
+      num *= -1;
+      den *= -1;
     }
-    return parseFloat(str);
+    return { num, den };
+  }
+
+  function parseFraction(input) {
+    input = input.trim();
+    if (!input.includes("/")) {
+      return simplifyFraction(Math.round(parseFloat(input) * 1000), 1000);
+    }
+    let parts = input.split("/");
+    return simplifyFraction(parseInt(parts[0]), parseInt(parts[1]));
+  }
+
+  function fractionsEqual(f1, f2) {
+    return f1.num === f2.num && f1.den === f2.den;
   }
 
   function randomInt(min, max) {
@@ -292,6 +318,140 @@
     document.getElementById("progressFill").style.width = percent + "%";
   }
 
+  /* FULL EQUATION BANK */
+  function generateEquation(unit) {
+    let x = randomInt(1, 10);
+
+    let bank = {
+
+      basics: () => {
+        let a = randomInt(2, 6);
+        let b = randomInt(1, 10);
+        let c = a * x + b;
+        return {
+          equation: `${a}x + ${b} = ${c}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Subtract ${b}`,
+            `${a}x = ${c - b}`,
+            `Divide by ${a}`,
+            `x = ${x}`
+          ]
+        };
+      },
+
+      multistep: () => {
+        let a = randomInt(2, 5);
+        let b = randomInt(1, 6);
+        let c = randomInt(2, 8);
+        let result = a * x + b + c;
+        return {
+          equation: `${a}x + ${b} + ${c} = ${result}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Combine constants: ${b}+${c}`,
+            `${a}x + ${b+c} = ${result}`,
+            `Subtract ${b+c}`,
+            `${a}x = ${result-(b+c)}`,
+            `Divide by ${a}`,
+            `x = ${x}`
+          ]
+        };
+      },
+
+      distribution: () => {
+        let a = randomInt(2, 4);
+        let b = randomInt(1, 6);
+        let result = a * (x + b);
+        return {
+          equation: `${a}(x + ${b}) = ${result}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Distribute ${a}`,
+            `${a}x + ${a*b} = ${result}`,
+            `Subtract ${a*b}`,
+            `${a}x = ${result - a*b}`,
+            `Divide by ${a}`,
+            `x = ${x}`
+          ]
+        };
+      },
+
+      liketerms: () => {
+        let a = randomInt(2, 5);
+        let b = randomInt(2, 5);
+        let constant = randomInt(1, 6);
+        let right = (a + b) * x - constant;
+        return {
+          equation: `${a}x + ${b}x - ${constant} = ${right}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Combine like terms: ${(a+b)}x - ${constant}`,
+            `Add ${constant}`,
+            `${(a+b)}x = ${right+constant}`,
+            `Divide by ${(a+b)}`,
+            `x = ${x}`
+          ]
+        };
+      },
+
+      bothsides: () => {
+        let a = randomInt(3, 6);
+        let c = randomInt(1, 3);
+        let b = randomInt(1, 6);
+        let d = a*x + b - c*x;
+        return {
+          equation: `${a}x + ${b} = ${c}x + ${d}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Subtract ${c}x from both sides`,
+            `${a-c}x + ${b} = ${d}`,
+            `Subtract ${b}`,
+            `${a-c}x = ${d-b}`,
+            `Divide by ${a-c}`,
+            `x = ${x}`
+          ]
+        };
+      },
+
+      fractions: () => {
+        let denom = randomInt(2, 5);
+        let b = randomInt(1, 4);
+        let resultNum = x + b * denom;
+        return {
+          equation: `x/${denom} + ${b} = ${resultNum}/${denom}`,
+          answer: simplifyFraction(x, 1),
+          steps: [
+            `Subtract ${b}`,
+            `x/${denom} = ${x}/${denom}`,
+            `Multiply both sides by ${denom}`,
+            `x = ${x}`
+          ]
+        };
+      }
+    };
+
+    if (unit === "mixed") {
+      let keys = Object.keys(bank);
+      return bank[keys[randomInt(0, keys.length - 1)]]();
+    }
+
+    return bank[unit]();
+  }
+
+  function generateQuestion() {
+    nextBtn.style.display = "none";
+    document.getElementById("feedbackBox").innerHTML = "";
+    updateProgress();
+
+    let unit = document.getElementById("unitSelect").value;
+    equationData = generateEquation(unit);
+
+    document.getElementById("questionText").innerText = equationData.equation;
+    document.getElementById("answerInput").value = "";
+  }
+
+  /* START QUIZ */
   startBtn.onclick = () => {
     totalQuestions = parseInt(document.getElementById("numQuestions").value);
     currentQuestion = 0;
@@ -300,131 +460,18 @@
     generateQuestion();
   };
 
-  function generateQuestion() {
-    nextBtn.style.display = "none";
-    document.getElementById("feedbackBox").innerHTML = "";
-    updateProgress();
-
-    let unit = document.getElementById("unitSelect").value;
-    let x = randomInt(1, 10);
-
-    let generators = [];
-
-    // Solving Basics
-    generators.push(() => {
-      let a = randomInt(2, 6);
-      let b = randomInt(1, 10);
-      let c = a * x + b;
-      return {
-        equation: `${a}x + ${b} = ${c}`,
-        answer: x,
-        steps: [
-          `Subtract ${b}`,
-          `${a}x = ${c - b}`,
-          `Divide by ${a}`,
-          `x = ${x}`
-        ]
-      };
-    });
-
-    // Distribution
-    generators.push(() => {
-      let a = randomInt(2, 4);
-      let b = randomInt(1, 6);
-      let result = a * (x + b);
-      return {
-        equation: `${a}(x + ${b}) = ${result}`,
-        answer: x,
-        steps: [
-          `Distribute ${a}`,
-          `${a}x + ${a*b} = ${result}`,
-          `Subtract ${a*b}`,
-          `${a}x = ${result - a*b}`,
-          `Divide by ${a}`,
-          `x = ${x}`
-        ]
-      };
-    });
-
-    // Like Terms
-    generators.push(() => {
-      let a = randomInt(2, 5);
-      let b = randomInt(2, 5);
-      let constant = randomInt(1, 6);
-      let right = (a + b) * x - constant;
-      return {
-        equation: `${a}x + ${b}x - ${constant} = ${right}`,
-        answer: x,
-        steps: [
-          `Combine like terms: ${(a+b)}x - ${constant}`,
-          `Add ${constant}`,
-          `${(a+b)}x = ${right+constant}`,
-          `Divide by ${(a+b)}`,
-          `x = ${x}`
-        ]
-      };
-    });
-
-    // Both Sides
-    generators.push(() => {
-      let a = randomInt(3, 6);
-      let c = randomInt(1, 3);
-      let b = randomInt(1, 6);
-      let d = a*x + b - c*x;
-      return {
-        equation: `${a}x + ${b} = ${c}x + ${d}`,
-        answer: x,
-        steps: [
-          `Subtract ${c}x`,
-          `${a-c}x + ${b} = ${d}`,
-          `Subtract ${b}`,
-          `${a-c}x = ${d-b}`,
-          `Divide by ${a-c}`,
-          `x = ${x}`
-        ]
-      };
-    });
-
-    // Fractions
-    generators.push(() => {
-      let denom = randomInt(2, 5);
-      let b = randomInt(1, 4);
-      let result = (x/denom + b).toFixed(2);
-      return {
-        equation: `x/${denom} + ${b} = ${result}`,
-        answer: x,
-        steps: [
-          `Subtract ${b}`,
-          `x/${denom} = ${(result-b).toFixed(2)}`,
-          `Multiply by ${denom}`,
-          `x = ${x}`
-        ]
-      };
-    });
-
-    // Unit filtering
-    if (unit === "basics") equationData = generators[0]();
-    else if (unit === "distribution") equationData = generators[1]();
-    else if (unit === "liketerms") equationData = generators[2]();
-    else if (unit === "bothsides") equationData = generators[3]();
-    else if (unit === "fractions") equationData = generators[4]();
-    else equationData = generators[randomInt(0, generators.length-1)]();
-
-    document.getElementById("questionText").innerText = equationData.equation;
-    document.getElementById("answerInput").value = "";
-  }
-
+  /* SUBMIT ANSWER */
   submitBtn.onclick = () => {
-    let userAnswer = parseAnswer(document.getElementById("answerInput").value);
-    let correctAnswer = equationData.answer;
+    let userFraction = parseFraction(document.getElementById("answerInput").value);
+    let correctFraction = equationData.answer;
 
-    let isCorrect = Math.abs(userAnswer - correctAnswer) < 0.001;
+    let isCorrect = fractionsEqual(userFraction, correctFraction);
     if (isCorrect) score++;
 
     document.getElementById("feedbackBox").innerHTML = `
       <div class="feedback ${isCorrect ? "correct" : "wrong"}">
         <h3>${isCorrect ? "✅ Correct!" : "❌ Incorrect"}</h3>
-        <p><b>Correct Answer:</b> x = ${correctAnswer}</p>
+        <p><b>Correct Answer:</b> x = ${correctFraction.num}/${correctFraction.den}</p>
 
         <h4>Step-by-Step Solution:</h4>
         <ul>
@@ -436,19 +483,33 @@
     nextBtn.style.display = "inline-block";
   };
 
+  /* NEXT QUESTION */
   nextBtn.onclick = () => {
     currentQuestion++;
+
     if (currentQuestion < totalQuestions) {
       generateQuestion();
     } else {
+      let student = document.getElementById("username").value;
+      let date = document.getElementById("quizDate").value;
+      let accuracy = Math.round((score / totalQuestions) * 100);
+
       document.getElementById("feedbackBox").innerHTML = `
-        <div class="feedback correct">
-          <h2>🎉 Quiz Finished!</h2>
-          <p>Final Score: <b>${score} / ${totalQuestions}</b></p>
+        <div class="feedback correct report">
+          <h2>🎉 Quiz Complete!</h2>
+          <p><b>Student:</b> ${student}</p>
+          <p><b>Date:</b> ${date}</p>
+          <p><b>Final Score:</b> ${score} / ${totalQuestions}</p>
+          <p><b>Accuracy:</b> ${accuracy}%</p>
+
+          <h3>Great work practicing Algebra 1 skills!</h3>
         </div>
       `;
+
       nextBtn.style.display = "none";
+      document.getElementById("progressFill").style.width = "100%";
     }
+
     updateProgress();
   };
 </script>
