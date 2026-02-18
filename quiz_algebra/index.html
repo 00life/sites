@@ -493,6 +493,8 @@
       let student = document.getElementById("username").value;
       let date = document.getElementById("quizDate").value;
       let accuracy = Math.round((score / totalQuestions) * 100);
+      let str_score = `${student}///${date}///${totalQuestions}///${eval(score/totalQuestions*100)}`;
+      let encodeScore = btoa(str_score);
 
       document.getElementById("feedbackBox").innerHTML = `
         <div class="feedback correct report">
@@ -501,8 +503,7 @@
           <p><b>Date:</b> ${date}</p>
           <p><b>Final Score:</b> ${score} / ${totalQuestions}</p>
           <p><b>Accuracy:</b> ${accuracy}%</p>
-
-          <h3>Great work practicing Algebra 1 skills!</h3>
+          <h5>Verification: ${encodeScore}</h5>
         </div>
       `;
 
