@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Group Organizer</title>
 
     <style>
@@ -17,6 +18,10 @@
             background: #f4f6f9;
             color: #222;
         }
+
+        /* =========================
+           HEADER
+        ========================= */
 
         header {
             background: #2c3e50;
@@ -35,11 +40,21 @@
             color: #dce3e8;
         }
 
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
         .container {
             max-width: 1200px;
             margin: 35px auto;
             padding: 0 20px;
         }
+
+
+        /* =========================
+           INPUT SECTION
+        ========================= */
 
         .input-section {
             background: white;
@@ -48,7 +63,9 @@
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
         }
 
-        /* Three columns */
+
+        /* Three-column layout */
+
         .columns {
             display: grid;
             grid-template-columns: 1fr 1fr 220px;
@@ -56,10 +73,12 @@
             align-items: stretch;
         }
 
+
         .input-group {
             display: flex;
             flex-direction: column;
         }
+
 
         label {
             font-weight: bold;
@@ -67,226 +86,400 @@
             font-size: 17px;
         }
 
+
+        /* =========================
+           TEXTAREAS
+        ========================= */
+
         textarea {
             width: 100%;
             height: 280px;
             resize: vertical;
+
             padding: 12px;
+
             border: 1px solid #bbb;
             border-radius: 7px;
+
             font-size: 16px;
             line-height: 1.5;
+
+            font-family: Arial, Helvetica, sans-serif;
         }
+
 
         textarea:focus,
         input:focus {
             outline: none;
+
             border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+
+            box-shadow:
+                0 0 0 2px
+                rgba(52, 152, 219, 0.15);
         }
 
-        /* Controls column */
+
+        /* =========================
+           CONTROLS
+        ========================= */
+
         .controls {
             display: flex;
             flex-direction: column;
+
             justify-content: center;
             align-items: stretch;
+
             padding: 10px;
         }
+
 
         .controls label {
             text-align: center;
         }
 
+
         #numberOfGroups {
             width: 100%;
+
             padding: 11px;
+
             font-size: 18px;
+
             text-align: center;
+
             border: 1px solid #bbb;
             border-radius: 7px;
+
             margin-bottom: 20px;
         }
 
+
+        /* =========================
+           BUTTON
+        ========================= */
+
         button {
             width: 100%;
+
             background: #3498db;
             color: white;
+
             border: none;
+
             padding: 13px 15px;
+
             font-size: 17px;
             font-weight: bold;
+
             border-radius: 7px;
+
             cursor: pointer;
+
             transition: 0.2s;
         }
 
+
         button:hover {
             background: #2980b9;
+
             transform: translateY(-1px);
         }
 
+
+        /* =========================
+           ERROR MESSAGE
+        ========================= */
+
         #errorMessage {
             text-align: center;
+
             color: #c0392b;
+
             font-weight: bold;
+
             margin-top: 20px;
         }
+
+
+        /* =========================
+           RESULTS
+        ========================= */
 
         #results {
             margin-top: 35px;
         }
 
+
         .results-title {
             text-align: center;
+
             margin-bottom: 25px;
         }
 
+
         .groups-container {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(260px, 1fr)
-            );
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(260px, 1fr)
+                );
+
             gap: 20px;
         }
 
+
+        /* =========================
+           GROUP CARD
+        ========================= */
+
         .group-card {
             background: white;
+
             border-radius: 12px;
+
             overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+
+            box-shadow:
+                0 3px 12px
+                rgba(0, 0, 0, 0.08);
         }
+
 
         .group-header {
             background: #34495e;
+
             color: white;
+
             padding: 14px;
+
             text-align: center;
         }
+
 
         .group-header h3 {
             margin: 0;
         }
 
+
+        /* =========================
+           STUDENT LIST
+        ========================= */
+
         .student-list {
             list-style: none;
+
             margin: 0;
             padding: 0;
         }
 
+
         .student-list li {
             display: flex;
+
             justify-content: space-between;
+
+            align-items: center;
+
             padding: 11px 15px;
-            border-bottom: 1px solid #eee;
+
+            border-bottom:
+                1px solid #eee;
         }
+
 
         .student-list li:last-child {
             border-bottom: none;
         }
 
+
         .student-grade {
             font-weight: bold;
+
+            white-space: nowrap;
         }
+
+
+        /* Missing grade styling */
+
+        .missing-grade {
+            font-weight: bold;
+
+            font-style: italic;
+
+            opacity: 0.7;
+        }
+
+
+        /* =========================
+           GROUP STATISTICS
+        ========================= */
 
         .group-stats {
             background: #f8f9fa;
-            border-top: 1px solid #ddd;
+
+            border-top:
+                1px solid #ddd;
+
             padding: 12px 15px;
+
             font-size: 14px;
         }
+
 
         .group-stats div {
             margin: 4px 0;
         }
 
+
+        /* =========================
+           OVERALL SUMMARY
+        ========================= */
+
         .overall-summary {
             margin-top: 25px;
+
             background: white;
+
             padding: 20px;
+
             border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+
+            box-shadow:
+                0 3px 12px
+                rgba(0, 0, 0, 0.08);
+
             text-align: center;
         }
 
-        /* Tablet / smaller screens */
+
+        /* =========================
+           TABLET
+        ========================= */
+
         @media (max-width: 900px) {
 
             .columns {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns:
+                    1fr 1fr;
             }
+
 
             .controls {
                 grid-column: 1 / -1;
+
                 flex-direction: row;
+
                 align-items: end;
+
                 gap: 15px;
-                padding: 10px 0 0 0;
+
+                padding:
+                    10px 0 0 0;
             }
+
 
             .controls label {
                 text-align: left;
             }
 
+
             #numberOfGroups {
                 width: 150px;
+
                 margin-bottom: 0;
             }
 
+
             button {
                 width: auto;
-                padding: 13px 30px;
+
+                padding:
+                    13px 30px;
             }
         }
 
-        /* Mobile */
+
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media (max-width: 700px) {
 
             .columns {
                 grid-template-columns: 1fr;
             }
 
+
             textarea {
                 height: 200px;
             }
 
+
             .controls {
                 grid-column: auto;
+
                 flex-direction: column;
+
                 align-items: stretch;
             }
+
 
             #numberOfGroups,
             button {
                 width: 100%;
             }
 
+
             #numberOfGroups {
                 margin-bottom: 10px;
             }
+
 
             header h1 {
                 font-size: 28px;
             }
         }
+
     </style>
 </head>
 
+
 <body>
 
+
+<!-- =========================
+     HEADER
+========================= -->
+
 <header>
+
     <h1>Group Organizer</h1>
-    <p>Create balanced student groups based on grades</p>
+
+    <p>
+        Create balanced student groups based on grades
+    </p>
+
 </header>
 
+
 <div class="container">
+
+
+    <!-- =========================
+         INPUT SECTION
+    ========================= -->
 
     <div class="input-section">
 
         <div class="columns">
 
-            <!-- Student Names -->
+
+            <!-- STUDENT NAMES -->
+
             <div class="input-group">
 
                 <label for="studentNames">
@@ -307,7 +500,9 @@ Frank"></textarea>
             </div>
 
 
-            <!-- Student Grades -->
+
+            <!-- STUDENT GRADES -->
+
             <div class="input-group">
 
                 <label for="studentGrades">
@@ -316,11 +511,13 @@ Frank"></textarea>
 
                 <textarea
                     id="studentGrades"
-                    placeholder="Enter one grade per line:
+                    placeholder="Enter one grade per line.
+
+Missing grades will automatically be assigned 0.
 
 85
 92
-76
+
 88
 95
 81"></textarea>
@@ -328,7 +525,9 @@ Frank"></textarea>
             </div>
 
 
-            <!-- Group Controls -->
+
+            <!-- GROUP CONTROLS -->
+
             <div class="controls">
 
                 <label for="numberOfGroups">
@@ -341,75 +540,133 @@ Frank"></textarea>
                     min="1"
                     value="2">
 
-                <button onclick="organizeGroups()">
+                <button
+                    onclick="organizeGroups()">
+
                     Organize Groups
+
                 </button>
 
             </div>
 
+
         </div>
+
 
         <div id="errorMessage"></div>
 
     </div>
 
 
-    <!-- Results -->
+
+    <!-- =========================
+         RESULTS
+    ========================= -->
+
     <div id="results"></div>
+
 
 </div>
 
 
+
 <script>
+
+    /* =====================================================
+       ORGANIZE GROUPS
+    ===================================================== */
 
     function organizeGroups() {
 
-        document.getElementById("errorMessage").textContent = "";
-        document.getElementById("results").innerHTML = "";
 
+        // Clear previous results
+        document.getElementById(
+            "errorMessage"
+        ).textContent = "";
+
+        document.getElementById(
+            "results"
+        ).innerHTML = "";
+
+
+        // Get names
         const namesText =
-            document.getElementById("studentNames").value.trim();
+            document.getElementById(
+                "studentNames"
+            ).value.trim();
 
+
+        // Get grades
         const gradesText =
-            document.getElementById("studentGrades").value.trim();
+            document.getElementById(
+                "studentGrades"
+            ).value.trim();
 
+
+        // Get number of groups
         const numberOfGroups =
             parseInt(
-                document.getElementById("numberOfGroups").value
+                document.getElementById(
+                    "numberOfGroups"
+                ).value
             );
 
 
-        if (!namesText || !gradesText) {
+        /* =================================================
+           VALIDATE STUDENT NAMES
+        ================================================= */
+
+        if (!namesText) {
 
             showError(
-                "Please enter both student names and grades."
+                "Please enter the student names."
             );
 
             return;
         }
 
 
-        const names = namesText
-            .split("\n")
-            .map(name => name.trim())
-            .filter(name => name !== "");
+        /* =================================================
+           GET NAMES
+        ================================================= */
+
+        const names =
+            namesText
+                .split("\n")
+                .map(
+                    name =>
+                        name.trim()
+                )
+                .filter(
+                    name =>
+                        name !== ""
+                );
 
 
-        const grades = gradesText
-            .split("\n")
-            .map(grade => grade.trim())
-            .filter(grade => grade !== "");
+        /* =================================================
+           GET GRADES
+
+           Important:
+           We DO NOT require the number of grades
+           to match the number of students.
+
+           Missing grades become 0.
+        ================================================= */
+
+        const grades =
+            gradesText
+                ? gradesText
+                    .split("\n")
+                    .map(
+                        grade =>
+                            grade.trim()
+                    )
+                : [];
 
 
-        if (names.length !== grades.length) {
-
-            showError(
-                "The number of student names must match the number of grades."
-            );
-
-            return;
-        }
-
+        /* =================================================
+           VALIDATE NUMBER OF GROUPS
+        ================================================= */
 
         if (
             isNaN(numberOfGroups) ||
@@ -424,7 +681,15 @@ Frank"></textarea>
         }
 
 
-        if (numberOfGroups > names.length) {
+        /* =================================================
+           MAKE SURE THERE ARE NOT MORE GROUPS
+           THAN STUDENTS
+        ================================================= */
+
+        if (
+            numberOfGroups >
+            names.length
+        ) {
 
             showError(
                 "The number of groups cannot be greater than the number of students."
@@ -434,221 +699,429 @@ Frank"></textarea>
         }
 
 
+        /* =================================================
+           CREATE STUDENT OBJECTS
+        ================================================= */
+
         const students = [];
 
 
-        for (let i = 0; i < names.length; i++) {
+        for (
+            let i = 0;
+            i < names.length;
+            i++
+        ) {
 
-            const grade = parseFloat(grades[i]);
+
+            let grade = 0;
+
+            let missing = true;
 
 
-            if (isNaN(grade)) {
+            /*
+                Check whether a grade exists
+                for this student.
+            */
 
-                showError(
-                    "All grades must be valid numbers."
-                );
+            if (
+                grades[i] !== undefined &&
+                grades[i] !== ""
+            ) {
 
-                return;
+                const parsedGrade =
+                    parseFloat(
+                        grades[i]
+                    );
+
+
+                /*
+                    If it is a valid number,
+                    use it.
+                */
+
+                if (
+                    !isNaN(parsedGrade)
+                ) {
+
+                    grade =
+                        parsedGrade;
+
+                    missing = false;
+                }
+
             }
 
 
+            /*
+                Store student information.
+            */
+
             students.push({
-                name: names[i],
-                grade: grade
+
+                name:
+                    names[i],
+
+                grade:
+                    grade,
+
+                missing:
+                    missing
+
             });
+
         }
 
 
-        /*
-            Sort students from highest grade
-            to lowest grade.
-        */
+        /* =================================================
+           SORT STUDENTS
+
+           Highest grades first.
+
+           Missing grades (0) naturally go
+           to the bottom.
+        ================================================= */
 
         students.sort(
-            (a, b) => b.grade - a.grade
+            (a, b) =>
+                b.grade -
+                a.grade
         );
 
 
-        /*
-            Create groups.
-        */
+        /* =================================================
+           CREATE EMPTY GROUPS
+        ================================================= */
 
         const groups = [];
 
 
-        for (let i = 0; i < numberOfGroups; i++) {
+        for (
+            let i = 0;
+            i < numberOfGroups;
+            i++
+        ) {
 
             groups.push({
+
                 students: [],
+
                 total: 0
+
             });
+
         }
 
 
-        /*
-            Keep group sizes as even as possible.
-        */
+        /* =================================================
+           CALCULATE MAXIMUM GROUP SIZE
+
+           Example:
+
+           20 students / 4 groups
+           = 5 per group
+
+           22 students / 4 groups
+           = groups can contain 5 or 6
+        ================================================= */
 
         const maximumGroupSize =
             Math.ceil(
-                students.length / numberOfGroups
+                students.length /
+                numberOfGroups
             );
 
 
-        /*
-            Balance grades by placing each
-            student into the group with
-            the lowest current total.
-        */
+        /* =================================================
+           BALANCE STUDENTS
 
-        students.forEach(student => {
+           Each student is placed into the group
+           with the lowest current grade total.
 
-            const availableGroups =
-                groups.filter(
-                    group =>
-                        group.students.length <
-                        maximumGroupSize
+           This attempts to keep the total grades
+           as balanced as possible.
+        ================================================= */
+
+        students.forEach(
+            student => {
+
+
+                /*
+                    Find groups that have not
+                    reached their maximum size.
+                */
+
+                const availableGroups =
+                    groups.filter(
+                        group =>
+                            group.students
+                                .length <
+                            maximumGroupSize
+                    );
+
+
+                /*
+                    Sort groups by their
+                    current grade total.
+
+                    The group with the lowest
+                    total comes first.
+
+                    If totals are equal,
+                    choose the group with
+                    fewer students.
+                */
+
+                availableGroups.sort(
+                    (a, b) => {
+
+                        if (
+                            a.total ===
+                            b.total
+                        ) {
+
+                            return (
+                                a.students.length -
+                                b.students.length
+                            );
+
+                        }
+
+
+                        return (
+                            a.total -
+                            b.total
+                        );
+
+                    }
                 );
 
 
-            availableGroups.sort(
-                (a, b) => {
+                /*
+                    Select the group with
+                    the lowest total.
+                */
 
-                    if (a.total === b.total) {
-
-                        return (
-                            a.students.length -
-                            b.students.length
-                        );
-                    }
-
-                    return a.total - b.total;
-                }
-            );
+                const chosenGroup =
+                    availableGroups[0];
 
 
-            const chosenGroup =
-                availableGroups[0];
+                /*
+                    Add student.
+                */
+
+                chosenGroup.students.push(
+                    student
+                );
 
 
-            chosenGroup.students.push(student);
+                /*
+                    Add grade to group total.
 
-            chosenGroup.total += student.grade;
+                    Missing grades are already
+                    represented as 0.
+                */
 
-        });
+                chosenGroup.total +=
+                    student.grade;
 
+            }
+        );
+
+
+        /* =================================================
+           DISPLAY RESULTS
+        ================================================= */
 
         displayGroups(groups);
 
     }
 
 
+
+    /* =====================================================
+       DISPLAY GROUPS
+    ===================================================== */
+
     function displayGroups(groups) {
 
+
         const results =
-            document.getElementById("results");
+            document.getElementById(
+                "results"
+            );
 
 
         let html = `
+
             <h2 class="results-title">
                 Organized Groups
             </h2>
 
             <div class="groups-container">
+
         `;
 
 
         let totalClassGrade = 0;
+
         let totalStudents = 0;
 
 
-        groups.forEach((group, index) => {
+        /* =================================================
+           CREATE EACH GROUP
+        ================================================= */
 
-            const average =
-                group.students.length > 0
-                    ? group.total /
-                      group.students.length
-                    : 0;
-
-
-            totalClassGrade += group.total;
-
-            totalStudents +=
-                group.students.length;
+        groups.forEach(
+            (group, index) => {
 
 
-            html += `
-
-                <div class="group-card">
-
-                    <div class="group-header">
-
-                        <h3>
-                            Group ${index + 1}
-                        </h3>
-
-                    </div>
+                const average =
+                    group.students.length > 0
+                        ? group.total /
+                          group.students.length
+                        : 0;
 
 
-                    <ul class="student-list">
-            `;
+                totalClassGrade +=
+                    group.total;
 
 
-            group.students.forEach(student => {
+                totalStudents +=
+                    group.students.length;
+
 
                 html += `
 
-                    <li>
+                    <div class="group-card">
 
-                        <span>
-                            ${escapeHTML(student.name)}
-                        </span>
+                        <div class="group-header">
 
-                        <span class="student-grade">
-                            ${student.grade}
-                        </span>
+                            <h3>
+                                Group ${index + 1}
+                            </h3>
 
-                    </li>
+                        </div>
+
+
+                        <ul class="student-list">
 
                 `;
 
-            });
+
+                /* =========================================
+                   ADD STUDENTS
+                ========================================= */
+
+                group.students.forEach(
+                    student => {
 
 
-            html += `
+                        /*
+                            Display missing grades
+                            differently.
+                        */
 
-                    </ul>
+                        let gradeDisplay;
 
 
-                    <div class="group-stats">
+                        if (
+                            student.missing
+                        ) {
 
-                        <div>
-                            <strong>Students:</strong>
-                            ${group.students.length}
-                        </div>
+                            gradeDisplay = `
 
-                        <div>
-                            <strong>Average Grade:</strong>
-                            ${average.toFixed(2)}
+                                <span class="missing-grade">
+                                    0 (Missing)
+                                </span>
+
+                            `;
+
+                        } else {
+
+                            gradeDisplay = `
+
+                                <span class="student-grade">
+                                    ${student.grade}
+                                </span>
+
+                            `;
+
+                        }
+
+
+                        html += `
+
+                            <li>
+
+                                <span>
+                                    ${escapeHTML(
+                                        student.name
+                                    )}
+                                </span>
+
+                                ${gradeDisplay}
+
+                            </li>
+
+                        `;
+
+                    }
+                );
+
+
+                html += `
+
+                        </ul>
+
+
+                        <div class="group-stats">
+
+                            <div>
+
+                                <strong>
+                                    Students:
+                                </strong>
+
+                                ${group.students.length}
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    Average Grade:
+                                </strong>
+
+                                ${average.toFixed(2)}
+
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
+                `;
 
-            `;
-
-        });
+            }
+        );
 
 
         html += `
+
             </div>
+
         `;
 
 
+        /* =================================================
+           OVERALL CLASS AVERAGE
+        ================================================= */
+
         const classAverage =
             totalStudents > 0
-                ? totalClassGrade / totalStudents
+                ? totalClassGrade /
+                  totalStudents
                 : 0;
 
 
@@ -656,17 +1129,26 @@ Frank"></textarea>
 
             <div class="overall-summary">
 
-                <strong>Class Average:</strong>
+                <strong>
+                    Class Average:
+                </strong>
+
                 ${classAverage.toFixed(2)}
 
                 &nbsp;&nbsp; | &nbsp;&nbsp;
 
-                <strong>Total Students:</strong>
+                <strong>
+                    Total Students:
+                </strong>
+
                 ${totalStudents}
 
                 &nbsp;&nbsp; | &nbsp;&nbsp;
 
-                <strong>Number of Groups:</strong>
+                <strong>
+                    Number of Groups:
+                </strong>
+
                 ${groups.length}
 
             </div>
@@ -674,32 +1156,53 @@ Frank"></textarea>
         `;
 
 
-        results.innerHTML = html;
+        results.innerHTML =
+            html;
 
     }
 
+
+
+    /* =====================================================
+       DISPLAY ERROR
+    ===================================================== */
 
     function showError(message) {
 
         document.getElementById(
             "errorMessage"
-        ).textContent = message;
+        ).textContent =
+            message;
 
     }
 
 
+
+    /* =====================================================
+       ESCAPE HTML
+
+       Protects the page if a student name
+       contains HTML characters.
+    ===================================================== */
+
     function escapeHTML(text) {
 
         const div =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        div.textContent = text;
+
+        div.textContent =
+            text;
+
 
         return div.innerHTML;
 
     }
 
 </script>
+
 
 </body>
 </html>
