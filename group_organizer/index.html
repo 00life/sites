@@ -1,0 +1,706 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Organizer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+
+        header p {
+            margin-top: 8px;
+            color: #dce3e8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Three columns */
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 220px;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 280px;
+            resize: vertical;
+            padding: 12px;
+            border: 1px solid #bbb;
+            border-radius: 7px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        textarea:focus,
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+        }
+
+        /* Controls column */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+            padding: 10px;
+        }
+
+        .controls label {
+            text-align: center;
+        }
+
+        #numberOfGroups {
+            width: 100%;
+            padding: 11px;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid #bbb;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 13px 15px;
+            font-size: 17px;
+            font-weight: bold;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        #errorMessage {
+            text-align: center;
+            color: #c0392b;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #results {
+            margin-top: 35px;
+        }
+
+        .results-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(260px, 1fr)
+            );
+            gap: 20px;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .group-header {
+            background: #34495e;
+            color: white;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .group-header h3 {
+            margin: 0;
+        }
+
+        .student-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .student-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .student-list li:last-child {
+            border-bottom: none;
+        }
+
+        .student-grade {
+            font-weight: bold;
+        }
+
+        .group-stats {
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+
+        .group-stats div {
+            margin: 4px 0;
+        }
+
+        .overall-summary {
+            margin-top: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        /* Tablet / smaller screens */
+        @media (max-width: 900px) {
+
+            .columns {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .controls {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                align-items: end;
+                gap: 15px;
+                padding: 10px 0 0 0;
+            }
+
+            .controls label {
+                text-align: left;
+            }
+
+            #numberOfGroups {
+                width: 150px;
+                margin-bottom: 0;
+            }
+
+            button {
+                width: auto;
+                padding: 13px 30px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+
+            .columns {
+                grid-template-columns: 1fr;
+            }
+
+            textarea {
+                height: 200px;
+            }
+
+            .controls {
+                grid-column: auto;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #numberOfGroups,
+            button {
+                width: 100%;
+            }
+
+            #numberOfGroups {
+                margin-bottom: 10px;
+            }
+
+            header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Group Organizer</h1>
+    <p>Create balanced student groups based on grades</p>
+</header>
+
+<div class="container">
+
+    <div class="input-section">
+
+        <div class="columns">
+
+            <!-- Student Names -->
+            <div class="input-group">
+
+                <label for="studentNames">
+                    Student Names
+                </label>
+
+                <textarea
+                    id="studentNames"
+                    placeholder="Enter one student per line:
+
+Alice
+Bob
+Charlie
+David
+Emma
+Frank"></textarea>
+
+            </div>
+
+
+            <!-- Student Grades -->
+            <div class="input-group">
+
+                <label for="studentGrades">
+                    Student Grades
+                </label>
+
+                <textarea
+                    id="studentGrades"
+                    placeholder="Enter one grade per line:
+
+85
+92
+76
+88
+95
+81"></textarea>
+
+            </div>
+
+
+            <!-- Group Controls -->
+            <div class="controls">
+
+                <label for="numberOfGroups">
+                    Number of Groups
+                </label>
+
+                <input
+                    type="number"
+                    id="numberOfGroups"
+                    min="1"
+                    value="2">
+
+                <button onclick="organizeGroups()">
+                    Organize Groups
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="errorMessage"></div>
+
+    </div>
+
+
+    <!-- Results -->
+    <div id="results"></div>
+
+</div>
+
+
+<script>
+
+    function organizeGroups() {
+
+        document.getElementById("errorMessage").textContent = "";
+        document.getElementById("results").innerHTML = "";
+
+        const namesText =
+            document.getElementById("studentNames").value.trim();
+
+        const gradesText =
+            document.getElementById("studentGrades").value.trim();
+
+        const numberOfGroups =
+            parseInt(
+                document.getElementById("numberOfGroups").value
+            );
+
+
+        if (!namesText || !gradesText) {
+
+            showError(
+                "Please enter both student names and grades."
+            );
+
+            return;
+        }
+
+
+        const names = namesText
+            .split("\n")
+            .map(name => name.trim())
+            .filter(name => name !== "");
+
+
+        const grades = gradesText
+            .split("\n")
+            .map(grade => grade.trim())
+            .filter(grade => grade !== "");
+
+
+        if (names.length !== grades.length) {
+
+            showError(
+                "The number of student names must match the number of grades."
+            );
+
+            return;
+        }
+
+
+        if (
+            isNaN(numberOfGroups) ||
+            numberOfGroups < 1
+        ) {
+
+            showError(
+                "Please enter a valid number of groups."
+            );
+
+            return;
+        }
+
+
+        if (numberOfGroups > names.length) {
+
+            showError(
+                "The number of groups cannot be greater than the number of students."
+            );
+
+            return;
+        }
+
+
+        const students = [];
+
+
+        for (let i = 0; i < names.length; i++) {
+
+            const grade = parseFloat(grades[i]);
+
+
+            if (isNaN(grade)) {
+
+                showError(
+                    "All grades must be valid numbers."
+                );
+
+                return;
+            }
+
+
+            students.push({
+                name: names[i],
+                grade: grade
+            });
+        }
+
+
+        /*
+            Sort students from highest grade
+            to lowest grade.
+        */
+
+        students.sort(
+            (a, b) => b.grade - a.grade
+        );
+
+
+        /*
+            Create groups.
+        */
+
+        const groups = [];
+
+
+        for (let i = 0; i < numberOfGroups; i++) {
+
+            groups.push({
+                students: [],
+                total: 0
+            });
+        }
+
+
+        /*
+            Keep group sizes as even as possible.
+        */
+
+        const maximumGroupSize =
+            Math.ceil(
+                students.length / numberOfGroups
+            );
+
+
+        /*
+            Balance grades by placing each
+            student into the group with
+            the lowest current total.
+        */
+
+        students.forEach(student => {
+
+            const availableGroups =
+                groups.filter(
+                    group =>
+                        group.students.length <
+                        maximumGroupSize
+                );
+
+
+            availableGroups.sort(
+                (a, b) => {
+
+                    if (a.total === b.total) {
+
+                        return (
+                            a.students.length -
+                            b.students.length
+                        );
+                    }
+
+                    return a.total - b.total;
+                }
+            );
+
+
+            const chosenGroup =
+                availableGroups[0];
+
+
+            chosenGroup.students.push(student);
+
+            chosenGroup.total += student.grade;
+
+        });
+
+
+        displayGroups(groups);
+
+    }
+
+
+    function displayGroups(groups) {
+
+        const results =
+            document.getElementById("results");
+
+
+        let html = `
+            <h2 class="results-title">
+                Organized Groups
+            </h2>
+
+            <div class="groups-container">
+        `;
+
+
+        let totalClassGrade = 0;
+        let totalStudents = 0;
+
+
+        groups.forEach((group, index) => {
+
+            const average =
+                group.students.length > 0
+                    ? group.total /
+                      group.students.length
+                    : 0;
+
+
+            totalClassGrade += group.total;
+
+            totalStudents +=
+                group.students.length;
+
+
+            html += `
+
+                <div class="group-card">
+
+                    <div class="group-header">
+
+                        <h3>
+                            Group ${index + 1}
+                        </h3>
+
+                    </div>
+
+
+                    <ul class="student-list">
+            `;
+
+
+            group.students.forEach(student => {
+
+                html += `
+
+                    <li>
+
+                        <span>
+                            ${escapeHTML(student.name)}
+                        </span>
+
+                        <span class="student-grade">
+                            ${student.grade}
+                        </span>
+
+                    </li>
+
+                `;
+
+            });
+
+
+            html += `
+
+                    </ul>
+
+
+                    <div class="group-stats">
+
+                        <div>
+                            <strong>Students:</strong>
+                            ${group.students.length}
+                        </div>
+
+                        <div>
+                            <strong>Average Grade:</strong>
+                            ${average.toFixed(2)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+
+        html += `
+            </div>
+        `;
+
+
+        const classAverage =
+            totalStudents > 0
+                ? totalClassGrade / totalStudents
+                : 0;
+
+
+        html += `
+
+            <div class="overall-summary">
+
+                <strong>Class Average:</strong>
+                ${classAverage.toFixed(2)}
+
+                &nbsp;&nbsp; | &nbsp;&nbsp;
+
+                <strong>Total Students:</strong>
+                ${totalStudents}
+
+                &nbsp;&nbsp; | &nbsp;&nbsp;
+
+                <strong>Number of Groups:</strong>
+                ${groups.length}
+
+            </div>
+
+        `;
+
+
+        results.innerHTML = html;
+
+    }
+
+
+    function showError(message) {
+
+        document.getElementById(
+            "errorMessage"
+        ).textContent = message;
+
+    }
+
+
+    function escapeHTML(text) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+
+    }
+
+</script>
+
+</body>
+</html>
+```
