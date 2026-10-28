@@ -39,9 +39,14 @@
             border-radius: 10px;
             background: #333;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
 
             transition:
                 background 0.15s,
@@ -61,6 +66,10 @@
             background: #0078d4;
         }
 
+        .sound-icon {
+            font-size: 22px;
+        }
+
         .instructions {
             text-align: center;
             color: #aaa;
@@ -74,7 +83,7 @@
     <h1>🔊 Soundboard</h1>
 
     <div class="instructions">
-        Click a button to play a sound.
+        Click a button to play or stop a sound.
     </div>
 
     <div id="soundboard" class="soundboard"></div>
@@ -93,29 +102,24 @@
          *
          * Then add the filenames below.
          *
-         * Example:
-         *
-         * "applause.mp3"
-         * "laugh.wav",
-         *
          */
 
         const audioFiles = [
             "laugh.mp3",
-			"fahhhhh.mp3",
-			"wild_geese.wav",
-			"crowd_laugh.wav",
-			"sad_trombone.wav",
-			"applause.wav",
-			"Ew_brother.mp3",
-			"yeah_buddy.mp3",
-			"goofy_slip.wav",
-			"OMG.wav",
-			"bruh.wav",
-			"alert.wav",
-			"slam.wav",
-			"organ.mp3",
-			"taco-bong.mp3"
+            "fahhhhh.mp3",
+            "wild_geese.wav",
+            "crowd_laugh.wav",
+            "sad_trombone.wav",
+            "applause.wav",
+            "Ew_brother.mp3",
+            "yeah_buddy.mp3",
+            "goofy_slip.wav",
+            "OMG.wav",
+            "bruh.wav",
+            "alert.wav",
+            "slam.wav",
+            "organ.mp3",
+            "taco-bong.mp3"
         ];
 
 
@@ -131,7 +135,6 @@
 
             // Create the button
             const button = document.createElement("button");
-
             button.className = "sound-button";
 
             // Remove the extension for the button label
@@ -144,7 +147,16 @@
                 buttonName.charAt(0).toUpperCase() +
                 buttonName.slice(1);
 
-            button.textContent = displayName;
+            // Create HTML structure with an icon container and text label
+            const iconSpan = document.createElement("span");
+            iconSpan.className = "sound-icon";
+            iconSpan.textContent = "▶"; // Default to Play icon
+
+            const textSpan = document.createElement("span");
+            textSpan.textContent = displayName;
+
+            button.appendChild(iconSpan);
+            button.appendChild(textSpan);
 
 
             /*
@@ -156,32 +168,40 @@
 
 
             /*
-             * Play the sound when the button is clicked
+             * Toggle play / stop when the button is clicked
              */
             button.addEventListener("click", () => {
 
-                // Restart the sound if it is already playing
-                audio.currentTime = 0;
-
-                audio.play()
-                    .then(() => {
-                        button.classList.add("playing");
-                    })
-                    .catch(error => {
-                        console.error(
-                            "Unable to play " + fileName,
-                            error
-                        );
-                    });
+                if (!audio.paused) {
+                    // If it is currently playing, stop it
+                    audio.pause();
+                    audio.currentTime = 0;
+                    button.classList.remove("playing");
+                    iconSpan.textContent = "▶";
+                } else {
+                    // If it is stopped, play it
+                    audio.currentTime = 0;
+                    audio.play()
+                        .then(() => {
+                            button.classList.add("playing");
+                            iconSpan.textContent = "⏹"; // Switch to Stop icon
+                        })
+                        .catch(error => {
+                            console.error(
+                                "Unable to play " + fileName,
+                                error
+                            );
+                        });
+                }
             });
 
 
             /*
-             * Remove the "playing" appearance
-             * when the sound finishes.
+             * Reset the icon and appearance when the sound finishes naturally
              */
             audio.addEventListener("ended", () => {
                 button.classList.remove("playing");
+                iconSpan.textContent = "▶";
             });
 
 
