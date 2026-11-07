@@ -1,1 +1,1577 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hypnosis Studio</title>
+
+<style>
+:root {
+    --glow: #00ff66;
+    --bg: #101510;
+    --panel: #19221c;
+    --border: #315c3c;
+    --text: #e5ffe9;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    transition: background 0.3s;
+}
+
+button, input, select, textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 9px;
+    color: white;
+    background: #26372b;
+}
+
+button:hover {
+    background: #3b6545;
+    border-color: var(--glow);
+}
+
+button.active {
+    background: var(--glow);
+    color: black;
+}
+
+input, select, textarea {
+    background: #0b110d;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px;
+}
+
+h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--glow);
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px;
+    min-width: 0;
+    box-shadow: 0 0 5px #000;
+}
+
+#studio {
+    display: grid;
+    grid-template-columns: 230px minmax(250px, 1fr) 260px;
+    grid-template-rows: auto auto;
+    gap: 8px;
+    max-width: 1500px;
+    margin: auto;
+}
+
+#header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 7px 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+}
+
+#header h1 {
+    font-size: 19px;
+    letter-spacing: 2px;
+    color: var(--glow);
+    margin: 0;
+}
+
+#left, #center, #right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    max-height: 205px;
+    padding: 3px;
+}
+
+.file-btn {
+    text-align: left;
+    overflow-wrap: anywhere;
+    width: 100%;
+}
+
+.file-btn.playing {
+    border-color: var(--glow);
+    box-shadow: 0 0 8px var(--glow);
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+}
+
+.controls label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.controls input[type="range"] {
+    width: 85px;
+    padding: 0;
+}
+
+#script {
+    width: 100%;
+    height: 235px;
+    resize: vertical;
+    line-height: 1.5;
+    font-family: Consolas, monospace;
+}
+
+#voice {
+    flex: 1;
+    min-width: 100px;
+}
+
+.status {
+    color: var(--glow);
+    font-size: 11px;
+    min-height: 15px;
+}
+
+.small {
+    font-size: 11px;
+    color: #a9c9ad;
+}
+
+.color-btn {
+    min-width: 48px;
+}
+
+#musicFile {
+    width: 100%;
+    font-size: 11px;
+}
+
+#window {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(560px, 85vw);
+    height: min(390px, 65vh);
+    min-width: 230px;
+    min-height: 140px;
+    z-index: 1000;
+    background: #080b09;
+    border: 2px solid var(--glow);
+    border-radius: 9px;
+    box-shadow: 0 0 18px var(--glow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#window.hidden {
+    display: none;
+}
+
+#window.maximized {
+    left: 8px;
+    top: 8px;
+    transform: none;
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+}
+
+#window.minimized {
+    height: 32px !important;
+    min-height: 32px;
+    width: 230px !important;
+}
+
+#windowHeader {
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 7px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--glow);
+    cursor: move;
+    user-select: none;
+}
+
+#windowHeader strong {
+    color: var(--glow);
+    font-size: 12px;
+}
+
+.window-actions {
+    display: flex;
+    gap: 3px;
+}
+
+.window-actions button {
+    padding: 2px 7px;
+    font-size: 12px;
+}
+
+#visualContent {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: black;
+}
+
+#visualContent img,
+#visualContent video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#visualPlaceholder {
+    color: #68816e;
+    text-align: center;
+    padding: 20px;
+}
+
+#window.minimized #visualContent {
+    display: none;
+}
+
+#window.minimized .window-actions {
+    margin-left: auto;
+}
+
+#windowFooter {
+    padding: 4px 8px;
+    font-size: 10px;
+    background: var(--panel);
+    color: #b5d5bb;
+    border-top: 1px solid var(--border);
+}
+
+#window.minimized #windowFooter {
+    display: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 3px var(--glow);
+        border-color: var(--border);
+    }
+    50% {
+        box-shadow: 0 0 15px var(--glow);
+        border-color: var(--glow);
+    }
+}
+
+body.pulsing .panel,
+body.pulsing #header,
+body.pulsing #window {
+    animation: pulse var(--pulse-speed, 2s) infinite ease-in-out;
+}
+
+@media(max-width: 850px) {
+    #studio {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #header {
+        grid-column: 1 / -1;
+    }
+
+    #center {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    #left, #right {
+        grid-row: 3;
+    }
+
+    .file-list {
+        max-height: 170px;
+    }
+}
+
+@media(max-width: 520px) {
+    #studio {
+        grid-template-columns: 1fr;
+    }
+
+    #header, #center {
+        grid-column: 1;
+    }
+
+    #left, #right {
+        grid-row: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="studio">
+
+    <!-- HEADER -->
+    <header id="header">
+        <h1>✧ HYPNOSIS STUDIO ✧</h1>
+
+        <div class="controls">
+            <button onclick="document.getElementById('folderPicker').click()">
+                📁 Load SAMPLES
+            </button>
+
+            <input type="file" id="folderPicker"
+                webkitdirectory multiple hidden>
+
+            <button onclick="toggleWindow()">
+                🖥 Visual Window
+            </button>
+        </div>
+    </header>
+
+    <!-- LEFT COLUMN -->
+    <div id="left">
+
+        <!-- AUDIO SOUND BOARD -->
+        <section class="panel">
+            <h3>🔊 AUDIO SOUNDBOARD</h3>
+
+            <div class="controls">
+                <button onclick="stopAllAudio()">⏹ Stop All</button>
+                <span class="small" id="audioCount">0 audio files</span>
+            </div>
+
+            <div id="audioList" class="file-list">
+                <span class="small">Load your SAMPLES folder.</span>
+            </div>
+        </section>
+
+        <!-- VISUAL LIBRARY -->
+        <section class="panel">
+            <h3>🌀 VISUAL LIBRARY</h3>
+
+            <span class="small" id="visualCount">0 visual files</span>
+
+            <div id="visualList" class="file-list">
+                <span class="small">Visual files will appear here.</span>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div id="center">
+
+        <!-- TTS -->
+        <section class="panel">
+            <h3>🗣 TEXT TO SPEECH / SCRIPT</h3>
+
+            <textarea id="script" spellcheck="false"
+                placeholder="Enter your hypnosis script here...
+
+Example:
+
+Relax your body.
+
+<BELL>
+
+<SLEEP 5>
+
+Allow yourself to drift deeper.
+
+<CHIME>
+
+Continue relaxing..."></textarea>
+
+            <div class="controls" style="margin-top:7px">
+                <button onclick="startSpeech()">▶ Speak</button>
+                <button onclick="pauseSpeech()">⏸ Pause</button>
+                <button onclick="resumeSpeech()">⏯ Resume</button>
+                <button onclick="stopSpeech()">⏹ Stop</button>
+            </div>
+
+            <div class="controls" style="margin-top:7px">
+                <label>Voice:
+                    <select id="voice"></select>
+                </label>
+            </div>
+
+            <div class="controls" style="margin-top:7px">
+                <label>Speed
+                    <input id="rate" type="range"
+                        min="0.5" max="2" step="0.1" value="0.85">
+                    <span id="rateValue">0.85</span>
+                </label>
+
+                <label>Pitch
+                    <input id="pitch" type="range"
+                        min="0" max="2" step="0.1" value="1">
+                    <span id="pitchValue">1</span>
+                </label>
+            </div>
+
+            <div class="status" id="speechStatus">Ready.</div>
+
+            <div class="small">
+                Commands: &lt;BUTTON NAME&gt; and &lt;SLEEP 5&gt;.
+                Button names match the sample filename without its extension.
+            </div>
+        </section>
+
+        <!-- COLOR CONTROLS -->
+        <section class="panel">
+            <h3>🎨 ENVIRONMENT / PULSE CONTROLS</h3>
+
+            <div class="controls">
+                <button class="color-btn" onclick="setColor('green')">
+                    🟢 Green
+                </button>
+
+                <button class="color-btn" onclick="setColor('blue')">
+                    🔵 Blue
+                </button>
+
+                <button class="color-btn" onclick="setColor('red')">
+                    🔴 Red
+                </button>
+            </div>
+
+            <div class="controls" style="margin-top:8px">
+                <button onclick="togglePulse()" id="pulseButton">
+                    ✨ Pulse ON/OFF
+                </button>
+
+                <label>Pulse speed
+                    <input type="range" id="pulseSpeed"
+                        min="0.5" max="6" step="0.5" value="2">
+                    <span id="pulseValue">2s</span>
+                </label>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div id="right">
+
+        <!-- AMBIENT MUSIC -->
+        <section class="panel">
+            <h3>🎵 AMBIENT BACKGROUND MUSIC</h3>
+
+            <input type="file" id="musicFile"
+                accept="audio/*">
+
+            <div class="controls" style="margin-top:8px">
+                <button onclick="music.play()">▶ Play</button>
+                <button onclick="music.pause()">⏸ Pause</button>
+                <button onclick="stopMusic()">⏹ Stop</button>
+            </div>
+
+            <div class="controls" style="margin-top:8px">
+                <label>
+                    Volume
+                    <input type="range" id="musicVolume"
+                        min="0" max="1" step="0.01" value="0.35">
+                </label>
+            </div>
+
+            <div class="controls" style="margin-top:8px">
+                <label>
+                    <input type="checkbox" id="musicLoop" checked>
+                    Loop music
+                </label>
+            </div>
+
+            <div class="status" id="musicStatus">
+                No music loaded.
+            </div>
+        </section>
+
+        <!-- MASTER CONTROLS -->
+        <section class="panel">
+            <h3>⚙ STUDIO CONTROLS</h3>
+
+            <div class="controls">
+                <button onclick="stopAllAudio()">🔇 Stop Audio</button>
+                <button onclick="stopSpeech()">🗣 Stop TTS</button>
+            </div>
+
+            <div class="controls" style="margin-top:7px">
+                <button onclick="stopMusic()">🎵 Stop Music</button>
+                <button onclick="clearVisual()">🖼 Clear Visual</button>
+            </div>
+
+            <div class="controls" style="margin-top:7px">
+                <button onclick="openWindow()">🖥 Open Window</button>
+                <button onclick="resetWindow()">↗ Reset Window</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3>📋 SCRIPT COMMANDS</h3>
+            <div class="small">
+                &lt;BELL&gt; – Plays the audio button named Bell.<br><br>
+                &lt;CHIME&gt; – Plays the audio button named Chime.<br><br>
+                &lt;SLEEP 5&gt; – Waits 5 seconds.<br><br>
+                &lt;SLEEP 10&gt; – Waits 10 seconds.<br><br>
+                Commands are case-insensitive.
+            </div>
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- MOVABLE VISUAL WINDOW -->
+<div id="window">
+
+    <div id="windowHeader">
+
+        <strong>🌀 HYPNOTIC VISUAL DISPLAY</strong>
+
+        <div class="window-actions">
+
+            <button title="Minimize"
+                onclick="minimizeWindow()">─</button>
+
+            <button title="Maximize / Restore"
+                onclick="maximizeWindow()">□</button>
+
+            <button title="Close"
+                onclick="closeWindow()">✕</button>
+
+        </div>
+    </div>
+
+    <div id="visualContent">
+        <div id="visualPlaceholder">
+            <h2>✧ HYPNOSIS STUDIO ✧</h2>
+            <p>Load a visual sample to begin.</p>
+        </div>
+    </div>
+
+    <div id="windowFooter">
+        Visual Display Window
+    </div>
+
+</div>
+
+
+<script>
+
+// =====================================================
+// GLOBAL VARIABLES
+// =====================================================
+
+const audioFiles = new Map();
+const visualFiles = new Map();
+const activeAudio = new Map();
+
+let currentVisualURL = null;
+let speechParts = [];
+let speechIndex = 0;
+let speechRunning = false;
+let speechPaused = false;
+let speechToken = 0;
+
+let voices = [];
+
+const music = new Audio();
+music.loop = true;
+music.volume = 0.35;
+
+
+// =====================================================
+// FILE LOADING
+// =====================================================
+
+const folderPicker = document.getElementById("folderPicker");
+
+folderPicker.addEventListener("change", function(event) {
+
+    const files = Array.from(event.target.files);
+
+    audioFiles.clear();
+    visualFiles.clear();
+
+    document.getElementById("audioList").innerHTML = "";
+    document.getElementById("visualList").innerHTML = "";
+
+    files.forEach(file => {
+
+        if (file.size === 0) return;
+
+        const extension = file.name.split(".").pop().toLowerCase();
+
+        const audioExtensions = [
+            "mp3", "wav", "ogg", "m4a", "aac", "flac"
+        ];
+
+        const visualExtensions = [
+            "jpg", "jpeg", "png", "gif", "webp",
+            "bmp", "svg", "mp4", "webm", "ogv"
+        ];
+
+        if (audioExtensions.includes(extension)) {
+
+            audioFiles.set(file.name, file);
+
+        } else if (visualExtensions.includes(extension)) {
+
+            visualFiles.set(file.name, file);
+
+        }
+
+    });
+
+    renderAudioButtons();
+    renderVisualButtons();
+
+    document.getElementById("audioCount").textContent =
+        audioFiles.size + " audio files";
+
+    document.getElementById("visualCount").textContent =
+        visualFiles.size + " visual files";
+
+    // Allow selecting the same folder again.
+    folderPicker.value = "";
+
+});
+
+
+// =====================================================
+// AUDIO SOUNDBOARD
+// =====================================================
+
+function renderAudioButtons() {
+
+    const container = document.getElementById("audioList");
+
+    container.innerHTML = "";
+
+    if (!audioFiles.size) {
+        container.innerHTML =
+            '<span class="small">No audio files found.</span>';
+        return;
+    }
+
+    audioFiles.forEach((file, name) => {
+
+        const button = document.createElement("button");
+
+        const baseName = name.replace(/\.[^/.]+$/, "");
+
+        button.className = "file-btn";
+        button.textContent = "🔊 " + baseName;
+        button.dataset.command = normalizeName(baseName);
+
+        button.addEventListener("click", () => {
+            playSample(name, button);
+        });
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+function playSample(name, button) {
+
+    // If already playing, stop it.
+    if (activeAudio.has(name)) {
+
+        const existing = activeAudio.get(name);
+
+        existing.pause();
+        existing.currentTime = 0;
+
+        activeAudio.delete(name);
+
+        if (button) button.classList.remove("playing");
+
+        return;
+    }
+
+    const file = audioFiles.get(name);
+
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    const audio = new Audio(url);
+
+    activeAudio.set(name, audio);
+
+    if (button) button.classList.add("playing");
+
+    audio.addEventListener("ended", () => {
+
+        activeAudio.delete(name);
+
+        if (button) button.classList.remove("playing");
+
+        URL.revokeObjectURL(url);
+
+    });
+
+    audio.addEventListener("error", () => {
+
+        activeAudio.delete(name);
+
+        if (button) button.classList.remove("playing");
+
+        URL.revokeObjectURL(url);
+
+    });
+
+    audio.play().catch(error => {
+
+        console.error("Audio playback error:", error);
+
+        activeAudio.delete(name);
+
+        if (button) button.classList.remove("playing");
+
+        URL.revokeObjectURL(url);
+
+    });
+
+}
+
+
+function stopAllAudio() {
+
+    activeAudio.forEach(audio => {
+
+        audio.pause();
+        audio.currentTime = 0;
+
+    });
+
+    activeAudio.clear();
+
+    document.querySelectorAll(".file-btn.playing")
+        .forEach(button => button.classList.remove("playing"));
+
+}
+
+
+// =====================================================
+// VISUAL LIBRARY
+// =====================================================
+
+function renderVisualButtons() {
+
+    const container = document.getElementById("visualList");
+
+    container.innerHTML = "";
+
+    if (!visualFiles.size) {
+
+        container.innerHTML =
+            '<span class="small">No visual files found.</span>';
+
+        return;
+    }
+
+    visualFiles.forEach((file, name) => {
+
+        const button = document.createElement("button");
+
+        const baseName = name.replace(/\.[^/.]+$/, "");
+
+        button.className = "file-btn";
+        button.textContent = "🖼 " + baseName;
+        button.dataset.command = normalizeName(baseName);
+
+        button.addEventListener("click", () => {
+            showVisual(name);
+        });
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+function showVisual(name) {
+
+    const file = visualFiles.get(name);
+
+    if (!file) return;
+
+    const extension = name.split(".").pop().toLowerCase();
+
+    const videoExtensions = ["mp4", "webm", "ogv"];
+
+    const content = document.getElementById("visualContent");
+
+    // Release previous visual URL.
+    if (currentVisualURL) {
+        URL.revokeObjectURL(currentVisualURL);
+    }
+
+    currentVisualURL = URL.createObjectURL(file);
+
+    content.innerHTML = "";
+
+    let element;
+
+    if (videoExtensions.includes(extension)) {
+
+        element = document.createElement("video");
+
+        element.src = currentVisualURL;
+        element.autoplay = true;
+        element.loop = true;
+        element.muted = true;
+        element.controls = true;
+        element.playsInline = true;
+
+    } else {
+
+        element = document.createElement("img");
+
+        element.src = currentVisualURL;
+        element.alt = name;
+
+    }
+
+    content.appendChild(element);
+
+    document.getElementById("windowFooter").textContent =
+        "Displaying: " + name;
+
+    openWindow();
+
+}
+
+
+function clearVisual() {
+
+    const content = document.getElementById("visualContent");
+
+    if (currentVisualURL) {
+        URL.revokeObjectURL(currentVisualURL);
+        currentVisualURL = null;
+    }
+
+    content.innerHTML = `
+        <div id="visualPlaceholder">
+            <h2>✧ HYPNOSIS STUDIO ✧</h2>
+            <p>Load a visual sample to begin.</p>
+        </div>
+    `;
+
+    document.getElementById("windowFooter").textContent =
+        "Visual Display Window";
+
+}
+
+
+// =====================================================
+// MOVABLE WINDOW
+// =====================================================
+
+const visualWindow = document.getElementById("window");
+
+const windowHeader = document.getElementById("windowHeader");
+
+let dragging = false;
+let dragX = 0;
+let dragY = 0;
+
+windowHeader.addEventListener("pointerdown", function(event) {
+
+    if (event.target.closest("button")) return;
+
+    if (visualWindow.classList.contains("maximized")) return;
+
+    dragging = true;
+
+    const rect = visualWindow.getBoundingClientRect();
+
+    visualWindow.style.transform = "none";
+
+    visualWindow.style.left = rect.left + "px";
+    visualWindow.style.top = rect.top + "px";
+
+    dragX = event.clientX - rect.left;
+    dragY = event.clientY - rect.top;
+
+    windowHeader.setPointerCapture(event.pointerId);
+
+});
+
+windowHeader.addEventListener("pointermove", function(event) {
+
+    if (!dragging) return;
+
+    const maxX = window.innerWidth - visualWindow.offsetWidth;
+    const maxY = window.innerHeight - 35;
+
+    visualWindow.style.left =
+        Math.max(0, Math.min(maxX, event.clientX - dragX)) + "px";
+
+    visualWindow.style.top =
+        Math.max(0, Math.min(maxY, event.clientY - dragY)) + "px";
+
+});
+
+windowHeader.addEventListener("pointerup", () => {
+    dragging = false;
+});
+
+windowHeader.addEventListener("pointercancel", () => {
+    dragging = false;
+});
+
+
+function minimizeWindow() {
+
+    visualWindow.classList.toggle("minimized");
+
+    visualWindow.classList.remove("maximized");
+
+}
+
+
+function maximizeWindow() {
+
+    visualWindow.classList.remove("minimized");
+
+    visualWindow.classList.toggle("maximized");
+
+}
+
+
+function closeWindow() {
+
+    visualWindow.classList.add("hidden");
+
+}
+
+
+function openWindow() {
+
+    visualWindow.classList.remove("hidden");
+
+}
+
+
+function toggleWindow() {
+
+    visualWindow.classList.toggle("hidden");
+
+}
+
+
+function resetWindow() {
+
+    visualWindow.classList.remove(
+        "hidden", "minimized", "maximized"
+    );
+
+    visualWindow.style.left = "50%";
+    visualWindow.style.top = "85px";
+    visualWindow.style.transform = "translateX(-50%)";
+
+}
+
+
+// =====================================================
+// COLOR AND PULSE CONTROLS
+// =====================================================
+
+function setColor(color) {
+
+    const themes = {
+
+        green: {
+            glow: "#00ff66",
+            bg: "#101510",
+            panel: "#19221c",
+            border: "#315c3c"
+        },
+
+        blue: {
+            glow: "#00aaff",
+            bg: "#080f1c",
+            panel: "#111e30",
+            border: "#24527c"
+        },
+
+        red: {
+            glow: "#ff3030",
+            bg: "#190b0b",
+            panel: "#291515",
+            border: "#733030"
+        }
+
+    };
+
+    const theme = themes[color];
+
+    if (!theme) return;
+
+    const root = document.documentElement;
+
+    root.style.setProperty("--glow", theme.glow);
+    root.style.setProperty("--bg", theme.bg);
+    root.style.setProperty("--panel", theme.panel);
+    root.style.setProperty("--border", theme.border);
+
+}
+
+
+function togglePulse() {
+
+    document.body.classList.toggle("pulsing");
+
+    document.getElementById("pulseButton").classList.toggle(
+        "active",
+        document.body.classList.contains("pulsing")
+    );
+
+}
+
+
+document.getElementById("pulseSpeed").addEventListener(
+    "input", function() {
+
+        const value = this.value;
+
+        document.documentElement.style.setProperty(
+            "--pulse-speed", value + "s"
+        );
+
+        document.getElementById("pulseValue").textContent =
+            value + "s";
+
+    }
+);
+
+
+// =====================================================
+// AMBIENT MUSIC
+// =====================================================
+
+document.getElementById("musicFile").addEventListener(
+    "change", function() {
+
+        const file = this.files[0];
+
+        if (!file) return;
+
+        music.pause();
+
+        music.src = URL.createObjectURL(file);
+
+        music.load();
+
+        music.loop = document.getElementById("musicLoop").checked;
+
+        document.getElementById("musicStatus").textContent =
+            "Loaded: " + file.name;
+
+    }
+);
+
+
+document.getElementById("musicVolume").addEventListener(
+    "input", function() {
+
+        music.volume = Number(this.value);
+
+    }
+);
+
+
+document.getElementById("musicLoop").addEventListener(
+    "change", function() {
+
+        music.loop = this.checked;
+
+    }
+);
+
+
+function stopMusic() {
+
+    music.pause();
+    music.currentTime = 0;
+
+}
+
+
+music.addEventListener("error", () => {
+
+    document.getElementById("musicStatus").textContent =
+        "Unable to play this music file.";
+
+});
+
+
+// =====================================================
+// TEXT TO SPEECH: VOICE SELECTION
+// =====================================================
+
+function loadVoices() {
+
+    voices = speechSynthesis.getVoices();
+
+    const selector = document.getElementById("voice");
+
+    const previous = selector.value;
+
+    selector.innerHTML = "";
+
+    voices.forEach((voice, index) => {
+
+        const option = document.createElement("option");
+
+        option.value = index;
+
+        option.textContent =
+            voice.name + " (" + voice.lang + ")";
+
+        selector.appendChild(option);
+
+    });
+
+    if (previous && voices[Number(previous)]) {
+        selector.value = previous;
+    }
+
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+
+loadVoices();
+
+
+// =====================================================
+// SPEECH SETTINGS
+// =====================================================
+
+document.getElementById("rate").addEventListener(
+    "input", function() {
+
+        document.getElementById("rateValue").textContent =
+            this.value;
+
+    }
+);
+
+
+document.getElementById("pitch").addEventListener(
+    "input", function() {
+
+        document.getElementById("pitchValue").textContent =
+            this.value;
+
+    }
+);
+
+
+// =====================================================
+// BUTTON NAME MATCHING
+// =====================================================
+
+function normalizeName(name) {
+
+    return name
+        .toLowerCase()
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-z0-9]/g, "");
+
+}
+
+
+function triggerButton(command) {
+
+    const normalized = normalizeName(command);
+
+    // Find matching audio button.
+    for (const [name] of audioFiles) {
+
+        if (normalizeName(name) === normalized) {
+
+            const buttons = document.querySelectorAll(
+                "#audioList button"
+            );
+
+            for (const button of buttons) {
+
+                if (button.dataset.command === normalized) {
+
+                    button.click();
+                    return true;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    // Find matching visual button.
+    for (const [name] of visualFiles) {
+
+        if (normalizeName(name) === normalized) {
+
+            const buttons = document.querySelectorAll(
+                "#visualList button"
+            );
+
+            for (const button of buttons) {
+
+                if (button.dataset.command === normalized) {
+
+                    button.click();
+                    return true;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    console.warn("Button not found:", command);
+
+    return false;
+
+}
+
+
+// =====================================================
+// TEXT TO SPEECH: SCRIPT PARSER
+// =====================================================
+
+function parseScript(text) {
+
+    const parts = [];
+
+    // Recognizes <BUTTON NAME> and <SLEEP 5>.
+    const regex = /<([^<>]+)>/g;
+
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+
+        // Add normal speech before the command.
+        const precedingText = text.substring(
+            lastIndex, match.index
+        );
+
+        if (precedingText.trim()) {
+
+            parts.push({
+                type: "speech",
+                text: precedingText
+            });
+
+        }
+
+        const command = match[1].trim();
+
+        const sleepMatch = command.match(
+            /^SLEEP\s+(\d+(?:\.\d+)?)$/i
+        );
+
+        if (sleepMatch) {
+
+            parts.push({
+                type: "sleep",
+                seconds: Math.min(Number(sleepMatch[1]), 3600)
+            });
+
+        } else {
+
+            parts.push({
+                type: "button",
+                name: command
+            });
+
+        }
+
+        lastIndex = regex.lastIndex;
+
+    }
+
+    // Remaining speech.
+    const remaining = text.substring(lastIndex);
+
+    if (remaining.trim()) {
+
+        parts.push({
+            type: "speech",
+            text: remaining
+        });
+
+    }
+
+    return parts;
+
+}
+
+
+// =====================================================
+// TEXT TO SPEECH: SPEECH ENGINE
+// =====================================================
+
+function startSpeech() {
+
+    speechSynthesis.cancel();
+
+    speechToken++;
+
+    speechParts = parseScript(
+        document.getElementById("script").value
+    );
+
+    speechIndex = 0;
+
+    speechRunning = true;
+    speechPaused = false;
+
+    speakNext(speechToken);
+
+}
+
+
+function speakNext(token) {
+
+    if (token !== speechToken) return;
+
+    if (!speechRunning || speechPaused) return;
+
+    if (speechIndex >= speechParts.length) {
+
+        speechRunning = false;
+
+        document.getElementById("speechStatus").textContent =
+            "Finished Reading Script.";
+
+        return;
+
+    }
+
+    const part = speechParts[speechIndex];
+
+    speechIndex++;
+
+    // BUTTON COMMAND
+    if (part.type === "button") {
+
+        triggerButton(part.name);
+
+        // Audio playback is independent.
+        // TTS continues immediately.
+
+        speakNext(token);
+
+        return;
+
+    }
+
+    // SLEEP COMMAND
+    if (part.type === "sleep") {
+
+        document.getElementById("speechStatus").textContent =
+            "Sleeping for " + part.seconds + " seconds.";
+
+        // Sleep is implemented as a speech utterance
+        // so pause/resume works with the speech engine.
+
+        const sleepText = new SpeechSynthesisUtterance(" ");
+
+        sleepText.volume = 0;
+
+        sleepText.onend = () => {
+
+            if (token !== speechToken) return;
+
+            setTimeout(() => {
+
+                speakNext(token);
+
+            }, Math.max(0, part.seconds * 1000));
+
+        };
+
+        speechSynthesis.speak(sleepText);
+
+        return;
+
+    }
+
+    // NORMAL SPEECH
+    if (part.type === "speech") {
+
+        const utterance = new SpeechSynthesisUtterance(
+            part.text
+        );
+
+        const voiceIndex = Number(
+            document.getElementById("voice").value
+        );
+
+        if (voices[voiceIndex]) {
+            utterance.voice = voices[voiceIndex];
+        }
+
+        utterance.rate = Number(
+            document.getElementById("rate").value
+        );
+
+        utterance.pitch = Number(
+            document.getElementById("pitch").value
+        );
+
+        utterance.onstart = () => {
+
+            document.getElementById("speechStatus").textContent =
+                "Speaking...";
+
+        };
+
+        utterance.onend = () => {
+
+            if (token !== speechToken) return;
+
+            speakNext(token);
+
+        };
+
+        utterance.onerror = (event) => {
+
+            if (token !== speechToken) return;
+
+            if (event.error === "canceled" ||
+                event.error === "interrupted") return;
+
+            document.getElementById("speechStatus").textContent =
+                "Speech error: " + event.error;
+
+        };
+
+        speechSynthesis.speak(utterance);
+
+    }
+
+}
+
+
+// =====================================================
+// SPEECH PAUSE / RESUME / STOP
+// =====================================================
+
+function pauseSpeech() {
+
+    if (!speechRunning) return;
+
+    speechPaused = true;
+
+    speechSynthesis.pause();
+
+    document.getElementById("speechStatus").textContent =
+        "Speech paused.";
+
+}
+
+
+function resumeSpeech() {
+
+    if (!speechRunning) return;
+
+    speechPaused = false;
+
+    speechSynthesis.resume();
+
+    document.getElementById("speechStatus").textContent =
+        "Speaking...";
+
+}
+
+
+function stopSpeech() {
+
+    speechToken++;
+
+    speechRunning = false;
+    speechPaused = false;
+
+    speechSynthesis.cancel();
+
+    document.getElementById("speechStatus").textContent =
+        "Speech stopped.";
+
+}
+
+
+// =====================================================
+// INITIALIZATION
+// =====================================================
+
+setColor("green");
+
+document.body.classList.add("pulsing");
+
+document.getElementById("pulseButton").classList.add("active");
+
+resetWindow();
+
+loadVoices();
+
+</script>
+
+</body>
+</html>
+
