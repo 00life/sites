@@ -9,4 +9,4 @@ https://00life.github.io/sites/convert2_pdf/ #(Convert images or word documents 
 https://00life.github.io/sites/quiz_algebra/ #(Quiz app for algebraic math)<br>
 https://00life.github.io/sites/group_organizer/ #(Organized people into groups base on grades) <br>
 https://00life.github.io/sites/soundboard/ #(Soundboard for Speaking Events) <br>
-https://00life.github.io/sites/hypnotic_studio/ #(Hypnotism tools) <br>
+https://00life.github.io/sites/hypnosis_studio/ #(Hypnotism tools) <br>
